@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwiftUI Basics Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* VOICE: friendly, clear reference — seekhne wale ke liye
+   IDEA: Xcode ka canvas — left code, right iPhone preview
+   PICTURE: har component ka live-jaisa iPhone screen
+   COLOUR and TYPE: iOS system blue on white / grouped gray, Inter + JetBrains Mono
+   LAYOUT: hero with phone strip, sticky category links, code|phone rows */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b0b0d);--ink:light-dark(#111113,#f2f2f7);--mut:light-dark(#5b5b63,#a1a1aa);--blue:#007aff;--card:light-dark(#f5f5f7,#17171a);--line:light-dark(#e3e3e8,#2a2a30);--codebg:#1d1f23;
+/* phone (always light iOS look) */--ph:#f2f2f7;--cell:#fff;--sep:#c6c6c8;--gray:#8e8e93}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+pre,.scroll{overflow-x:auto}.scroll a{flex:none}code{overflow-wrap:anywhere}html{scroll-padding-top:72px;scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+.hero{background:var(--blue);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:center}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0 0 14px;font-weight:800;text-wrap:balance;letter-spacing:-.02em}
+.hero p{font-size:17px;max-width:34em;margin:0;opacity:.92}
+.hero small{display:block;margin-top:16px;font-size:13px;opacity:.8}
+.strip{display:flex;gap:14px;justify-content:center}
+.strip .phone{transform:rotate(-4deg)}.strip .phone:nth-child(2){transform:translateY(-14px)}.strip .phone:nth-child(3){transform:rotate(4deg)}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .scroll{display:flex;gap:6px;padding:10px max(5vw,16px);max-width:1240px;margin:0 auto}
+nav a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:99px;background:var(--card);white-space:nowrap}
+nav a:hover,nav a:focus-visible{background:var(--blue);color:#fff;outline:none}
+h2{font-size:32px;line-height:1.05;margin:56px 0 6px;letter-spacing:-.01em}
+h2+p.sub{color:var(--mut);margin:0 0 24px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start;padding:28px 0;border-top:1px solid var(--line)}
+.item h3{font-size:20px;margin:0 0 4px}
+.item .d{color:var(--mut);margin:0 0 14px;max-width:60ch}
+.codebox{position:relative;background:var(--codebg);border-radius:14px}
+.codebox pre{margin:0;padding:18px 18px 18px;color:#e6e6e6;font:13.5px/1.6 'JetBrains Mono',ui-monospace,monospace}
+.copy{position:absolute;top:8px;right:8px;font:500 13px Inter,sans-serif;background:#ffffff1a;color:#fff;border:0;border-radius:8px;padding:0 12px;height:32px;cursor:pointer}
+.copy:hover,.copy:focus-visible{background:var(--blue);outline:none}
+.k{color:#ff7ab2}.t{color:#6bdfff}.s{color:#fc6a5d}.n{color:#d9c97c}.c{color:#7f8c98}
+/* phone */
+.phone{width:240px;height:440px;border-radius:38px;background:#111;padding:9px;box-shadow:0 18px 40px #0003,inset 0 0 0 2px #333;flex:none}
+.scr{position:relative;width:100%;height:100%;border-radius:30px;background:var(--ph);overflow:hidden;color:#000;font:13px/1.35 Inter,-apple-system,sans-serif;display:flex;flex-direction:column}
+.scr.white{background:#fff}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-weight:600;font-size:12px;flex:none}
+.isl{width:70px;height:20px;background:#000;border-radius:12px}
+.bd{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.ctr{align-items:center;justify-content:center}
+.home{height:4px;width:90px;background:#000;border-radius:3px;margin:6px auto 8px;flex:none}
+.cap{font-size:11px;color:var(--mut);text-align:center;margin-top:8px}
+.ttl{font-size:24px;font-weight:700;padding:2px 2px 0}
+.grp{background:var(--cell);border-radius:10px;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;min-height:38px;gap:8px}
+.row+.row{border-top:.5px solid var(--sep);margin-left:12px;padding-left:0}
+.gh{font-size:11px;color:var(--gray);text-transform:uppercase;padding:0 12px;margin-bottom:-6px}
+.btn{background:var(--blue);color:#fff;border-radius:9px;padding:8px 14px;font-weight:600;text-align:center}
+.btn.bord{background:#007aff22;color:var(--blue)}
+.btn.plain{background:none;color:var(--blue);font-weight:400}
+.btn.cap2{border-radius:99px}
+.btn.red{background:none;color:#ff3b30}
+.tog{width:40px;height:24px;border-radius:12px;background:#34c759;position:relative;flex:none}
+.tog::after{content:"";position:absolute;right:2px;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004}
+.tog.off{background:#e9e9eb}.tog.off::after{right:auto;left:2px}
+.sl{height:4px;background:#d1d1d6;border-radius:2px;position:relative;margin:10px 0}
+.sl i{position:absolute;left:0;top:0;height:4px;background:var(--blue);border-radius:2px}
+.sl b{position:absolute;top:-10px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0005;margin-left:-12px}
+.tf{background:#fff;border:1px solid #d1d1d6;border-radius:7px;padding:7px 9px;color:#000}
+.ph{color:#c4c4c6}
+.seg{display:flex;background:#e3e3e8;border-radius:8px;padding:2px}
+.seg span{flex:1;text-align:center;padding:4px 0;font-size:12px;font-weight:500;border-radius:6px}
+.seg .on{background:#fff;box-shadow:0 1px 3px #0002}
+.step{display:flex;background:#e9e9eb;border-radius:8px;font-size:16px}
+.step span{padding:2px 12px}.step span+span{border-left:1px solid #c6c6c8}
+.pv{height:4px;background:#e5e5ea;border-radius:2px;overflow:hidden}.pv i{display:block;height:100%;background:var(--blue)}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid #d1d1d6;border-top-color:#8e8e93;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.chev{color:#c4c4c6;font-size:16px}
+.tag{background:#e9e9eb;border-radius:6px;padding:3px 8px;font-size:12px}
+.blue{color:var(--blue)}.gray{color:var(--gray)}
+.tabbar{display:flex;justify-content:space-around;border-top:.5px solid var(--sep);background:#f9f9f9;padding:6px 0 0;flex:none;font-size:10px}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--gray)}.tabbar .on{color:var(--blue)}
+.dim{position:absolute;inset:0;background:#0006;display:flex;align-items:center;justify-content:center}
+.alert{width:180px;background:#f2f2f7ee;border-radius:13px;text-align:center;overflow:hidden}
+.alert .a1{padding:14px 12px 10px}.alert .a2{display:flex;border-top:.5px solid var(--sep)}
+.alert .a2 span{flex:1;padding:9px;color:var(--blue)}.alert .a2 span+span{border-left:.5px solid var(--sep);font-weight:600}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:46px;background:#fff;border-radius:12px 12px 0 0;padding:8px 14px}
+.grab{width:34px;height:5px;background:#c7c7cc;border-radius:3px;margin:0 auto 10px}
+.gridc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gridc div{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.menu{position:absolute;background:#f2f2f7f5;border-radius:12px;box-shadow:0 10px 30px #0003;width:170px;overflow:hidden}
+.menu div{padding:9px 12px;display:flex;justify-content:space-between}.menu div+div{border-top:.5px solid var(--sep)}
+.box{border-radius:8px;padding:8px 10px;color:#fff;font-weight:600;text-align:center}
+svg.i{width:1em;height:1em;vertical-align:-.15em;fill:currentColor}
+footer{color:var(--mut);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:860px){.hero .wrap{grid-template-columns:minmax(0,1fr)}.strip .phone:nth-child(3){display:none}}
+@media(max-width:700px){.item{grid-template-columns:minmax(0,1fr)}.item .pw{order:-1;justify-self:center}.strip .phone:nth-child(2){display:none}.strip .phone{transform:none}h2{font-size:28px}}
+@media(max-width:600px){table{font-size:13px}}
+
+.hero .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.strip .phone:nth-child(1){transform:rotate(-4deg)}.strip .phone:nth-child(2){transform:rotate(3deg) translateY(-10px)}
+.lead{font-size:17px;max-width:62ch;margin:0 0 22px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start}
+.flow{display:grid;gap:14px;margin:0 0 24px}
+.fr{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:14px}
+.fr .lb{font-weight:700;width:84px;flex:none}
+.nd{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:500 13.5px 'JetBrains Mono',monospace}
+.nd.hot{background:var(--blue);border-color:var(--blue);color:#fff}
+.ar{color:var(--mut);font-size:18px}
+.phones{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;margin:6px 0 20px}
+.pc{display:flex;flex-direction:column;align-items:center;gap:8px;width:200px}
+.pc .phone{width:200px;height:380px;border-radius:34px;padding:8px}
+.pc .scr{border-radius:27px;font-size:12px}
+.pc b.l{font-size:14px}
+.pc code{font-size:12px;color:var(--mut);text-align:center}
+.arrow{align-self:center;display:flex;flex-direction:column;align-items:center;color:var(--blue);font-weight:600;font-size:12px;text-align:center;width:70px}
+.arrow span{font-size:26px;line-height:1}
+.spc{flex:1;align-self:stretch;border:1.5px dashed #ff2d55;background:#ff2d5512;color:#ff2d55;border-radius:6px;display:flex;align-items:center;justify-content:center;font:600 10.5px 'JetBrains Mono',monospace;min-height:16px}
+.navt{font-size:22px;font-weight:700}
+.navs{display:flex;justify-content:space-between;align-items:center;font-size:13px;min-height:20px}
+.navi{text-align:center;font-weight:600;font-size:13px}
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 20px}
+.tbl th,.tbl td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-size:13px;color:var(--mut);font-weight:600}
+.tbl code{font:13px 'JetBrains Mono',monospace;background:var(--card);padding:2px 6px;border-radius:5px}
+details{background:var(--card);border-radius:12px;margin:0 0 10px}
+summary{cursor:pointer;padding:14px 16px;font-weight:600;min-height:44px}
+details .codebox{border-radius:0 0 12px 12px}
+.note{background:var(--card);border-left:3px solid var(--blue);border-radius:8px;padding:12px 14px;margin:0 0 18px;font-size:15px}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 20px}
+.chip{background:var(--card);border-radius:12px;padding:12px 14px;font-size:14px}
+.chip code{font:600 13px 'JetBrains Mono',monospace;color:var(--blue);display:block;margin-bottom:4px}
+@media(max-width:700px){.strip .phone:nth-child(2){display:none}.two{grid-template-columns:minmax(0,1fr)}.two .pw{justify-self:center}.arrow{width:100%;flex-direction:row;justify-content:center;gap:8px}.arrow span{transform:rotate(90deg)}.phones{justify-content:center}}
+@media(max-width:600px){.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0}}
+</style>
+</head>
+<body>
+<header class="band hero"><div class="wrap">
+  <div>
+    <a href="index.html" style="display:inline-block;color:#fff;opacity:.9;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:14px">← Saare guides</a>
+    <h1>SwiftUI basics — UIKit wale developer ke liye</h1>
+    <p>App kaise start hota hai, Spacer se layout kaise banta hai, button dabane par next screen par kaise jaate hain, aur property wrappers. Har cheez code aur iPhone preview ke saath, ek page mein.</p>
+    <small>Code Xcode 15+ / iOS 17+ ke liye. Previews iOS ke default look jaise banaye gaye hain.</small>
+  </div>
+  <div class="strip" id="heroStrip"></div>
+</div></header>
+<nav><div class="scroll">
+  <a href="#start">1. App start</a><a href="#layout">2. Spacer aur layout</a><a href="#nav">3. Navigation</a><a href="#wrappers">4. Property wrappers</a><a href="#app">5. Chhota app</a><a href="#cheat">6. Cheat sheet</a>
+</div></nav>
+
+<main class="band" style="padding-top:8px"><div class="wrap">
+
+<h2 id="start">1. App kaise start hota hai</h2>
+<p class="lead">SwiftUI mein AppDelegate, SceneDelegate ya storyboard nahi hote. <b>@main wala App struct</b> hi entry point hai, aur woh batata hai ki pehla screen kaunsa hoga.</p>
+<div class="flow">
+  <div class="fr"><span class="lb">UIKit</span><span class="nd">main</span><span class="ar">→</span><span class="nd">AppDelegate</span><span class="ar">→</span><span class="nd">SceneDelegate</span><span class="ar">→</span><span class="nd">UIWindow</span><span class="ar">→</span><span class="nd">rootViewController</span></div>
+  <div class="fr"><span class="lb">SwiftUI</span><span class="nd hot">@main MyApp</span><span class="ar">→</span><span class="nd hot">WindowGroup</span><span class="ar">→</span><span class="nd hot">ContentView()</span><span class="ar">→</span><span class="nd">body = screen ka UI</span></div>
+</div>
+<div class="two">
+  <div><div class="codebox" data-code="app"></div>
+  <div class="chips" style="margin-top:14px">
+    <div class="chip"><code>Launch screen</code>Target → Info → "Launch Screen" key mein color aur image set karo. Storyboard nahi.</div>
+    <div class="chip"><code>.onAppear { }</code>viewWillAppear jaisa. Screen dikhte hi chalta hai.</div>
+    <div class="chip"><code>.task { }</code>Async API call ke liye. Screen jaate hi khud cancel.</div>
+    <div class="chip"><code>@UIApplicationDelegateAdaptor</code>Firebase ya push ke liye AppDelegate chahiye to isse jodo.</div>
+  </div></div>
+  <div class="pw" id="pStart"></div>
+</div>
+
+<h2 id="layout">2. Spacer aur layout: constraints ki jagah</h2>
+<p class="lead">SwiftUI ka default rule: <b>har view utni hi jagah leta hai jitni use chahiye, aur poora group screen ke beech mein aata hai.</b> <span style="color:#ff2d55;font-weight:600">Spacer()</span> bachi hui saari jagah le leta hai aur cheezon ko kinare dhakel deta hai. Neeche ek hi VStack ke chaar version hain; gulabi dashed area Spacer hai.</p>
+<div class="phones" id="spacers"></div>
+<div class="note">Rule: ek stack mein jitne Spacer, bachi hui jagah utne barabar hisson mein bat jaati hai. HStack mein bhi yahi hota hai: <code>HStack { Text("Left"); Spacer(); Text("Right") }</code></div>
+<div class="chips">
+  <div class="chip"><code>VStack(spacing: 20)</code>Har child ke beech 20pt. Default lagbhag 8pt hota hai.</div>
+  <div class="chip"><code>Spacer().frame(height: 40)</code>Fixed 40pt gap, jaise constant constraint.</div>
+  <div class="chip"><code>.padding(.horizontal, 24)</code>Left aur right margin 24pt.</div>
+  <div class="chip"><code>.frame(maxWidth: .infinity)</code>Leading/trailing = 0. Full width.</div>
+  <div class="chip"><code>VStack(alignment: .leading)</code>Andar sab left aligned.</div>
+  <div class="chip"><code>.ignoresSafeArea()</code>Background notch ke peeche tak.</div>
+</div>
+<div class="two">
+  <div><h3 style="margin:0 0 8px">Perfect login layout: 2 Spacer + padding</h3><div class="codebox" data-code="login"></div></div>
+  <div class="pw" id="pLogin"></div>
+</div>
+
+<h2 id="nav">3. Button click se next screen</h2>
+<p class="lead">Root screen ko <b>NavigationStack</b> (UINavigationController) mein lapeto. <b>NavigationLink</b> tap karne par next screen push hoti hai, aur back button khud aata hai. Modal ke liye <b>.sheet</b> use hota hai.</p>
+<div class="phones" id="navFlow"></div>
+<div class="codebox" data-code="nav" style="margin-bottom:14px"></div>
+<details><summary>Button dabane par pehle check karna ho (jaise login sahi hai ya nahi)</summary><div class="codebox" data-code="navcond"></div></details>
+<div class="note">NavigationStack <b>sirf root screen par ek baar</b> lagta hai. Detail ke andar dobara lagaoge to do navigation bar ban jaayenge.</div>
+
+<h2 id="wrappers">4. Property wrappers: data badla, UI khud badla</h2>
+<p class="lead">SwiftUI mein <code>label.text = ...</code> nahi likhte. Data ko wrapper mein rakho. Data badalte hi SwiftUI <code>body</code> dobara chalata hai aur screen update ho jaati hai.</p>
+<table class="tbl stack"><thead><tr><th>Wrapper</th><th>Kab</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>@State</code></td><td>Is screen ka apna data</td><td>Toggle, TextField text, counter</td></tr>
+<tr><td><code>@Binding</code></td><td>Parent ka @State child ko do, child badal sake</td><td>Custom switch view (delegate ki jagah)</td></tr>
+<tr><td><code>@Observable</code></td><td>ViewModel class (MVVM)</td><td>API se aayi list, user profile</td></tr>
+<tr><td><code>@Environment</code></td><td>System values ya shared object</td><td><code>dismiss</code>, <code>colorScheme</code></td></tr>
+<tr><td><code>@AppStorage</code></td><td>UserDefaults mein save hone wali setting</td><td>isLoggedIn, dark mode</td></tr>
+</tbody></table>
+<div class="phones" id="pBind"></div>
+<div class="codebox" data-code="binding"></div>
+
+<h2 id="app">5. Chhota app: "My Tasks"</h2>
+<p class="lead">Upar ke saare concepts ek app mein. Login karo, list dekho, task par tap karke Detail kholo, <b>+</b> se naya task add karo. Naya Xcode project banao aur neeche ki files daalo.</p>
+<div class="phones" id="appFlow"></div>
+<details open><summary>TaskApp.swift: entry point, login hai to Home, warna Login</summary><div class="codebox" data-code="f1"></div></details>
+<details><summary>TaskStore.swift: data aur logic (@Observable)</summary><div class="codebox" data-code="f2"></div></details>
+<details><summary>LoginView.swift: Spacer layout + login check</summary><div class="codebox" data-code="f3"></div></details>
+<details><summary>HomeView.swift: List, NavigationLink, toolbar, sheet</summary><div class="codebox" data-code="f4"></div></details>
+<details><summary>DetailView.swift + AddTaskView.swift: dismiss() se wapas</summary><div class="codebox" data-code="f5"></div></details>
+
+<h2 id="cheat">6. UIKit → SwiftUI cheat sheet</h2>
+<table class="tbl stack" style="margin-top:16px"><thead><tr><th>UIKit</th><th>SwiftUI</th></tr></thead><tbody id="cheatBody"></tbody></table>
+<div class="note">Galtiyan jo juniors karte hain: har screen par NavigationStack lagana · <code>body</code> ke andar API call (use <code>.task</code>) · <code>.frame(width: 375)</code> jaisi fixed width · modifier order bhoolna (<code>.padding().background()</code> aur <code>.background().padding()</code> alag dikhte hain).</div>
+</div></main>
+<footer class="band"><div class="wrap">Aage: Apple ka <a href="https://developer.apple.com/tutorials/swiftui" style="color:var(--blue)">SwiftUI Tutorials</a> (Landmarks app) is page ke baad sabse achha next step hai.</div></footer>
+
+<script>
+{
+const S={
+star:'<svg class="i" viewBox="0 0 24 24"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z"/></svg>',
+heart:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg>',
+house:'<svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>',
+gear:'<svg class="i" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-2.2-.6-.6-1.5 1.1-2-1.7-1.7-2 1.1-1.5-.6L13.5 3h-3l-.6 2.2-1.5.6-2-1.1L4.7 6.4l1.1 2-.6 1.5L3 10.5v3l2.2.6.6 1.5-1.1 2 1.7 1.7 2-1.1 1.5.6.6 2.2h3l.6-2.2 1.5-.6 2 1.1 1.7-1.7-1.1-2 .6-1.5L21 13.5z"/></svg>',
+person:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>',
+bell:'<svg class="i" viewBox="0 0 24 24"><path d="M12 22a2.5 2.5 0 002.5-2.5h-5A2.5 2.5 0 0012 22zm7-6V11a7 7 0 00-5.5-6.8V3h-3v1.2A7 7 0 005 11v5l-2 2v1h18v-1z"/></svg>',
+plus:'<svg class="i" viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>',
+search:'<svg class="i" viewBox="0 0 24 24"><path d="M10 3a7 7 0 015.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1110 3zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>',
+tray:'<svg class="i" viewBox="0 0 24 24"><path d="M3 13l3-9h12l3 9v7H3zm2.2 0H9a3 3 0 006 0h3.8l-2.2-7H7.4z"/></svg>'
+};
+const ph=(body,o={})=>`<div class="phone"><div class="scr ${o.white?'white':''}"><div class="sb"><span>9:41</span><span class="isl"></span><span>100%</span></div>${o.raw?body:`<div class="bd ${o.ctr?'ctr':''}">${body}</div>`}${o.tab||''}<div class="home"></div>${o.over||''}</div></div>`;
+const hl=src=>src.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+ .replace(/("(?:[^"\\]|\\.)*")|(\/\/[^\n]*)|\b(struct|var|let|some|import|func|private|static|in|true|false|@State|@Binding|for|if|else)\b|(@State|@Environment)|\b([A-Z][A-Za-z]+)\b|\b(\d+(?:\.\d+)?)\b/g,(m,s,c,k,a,t,n)=>s?`<span class="s">${s}</span>`:c?`<span class="c">${c}</span>`:k?`<span class="k">${k}</span>`:a?`<span class="k">${a}</span>`:t?`<span class="t">${t}</span>`:`<span class="n">${n}</span>`)
+ .replace(/<span class="k">@<\/span>/g,'@');
+
+
+const C={
+app:`// MyApp.swift — app yahan se start hota hai
+import SwiftUI
+
+@main
+struct MyApp: App {
+    var body: some Scene {
+        WindowGroup {          // = UIWindow
+            ContentView()      // = rootViewController (pehla screen)
+        }
+    }
+}
+
+// ContentView.swift — pehla screen
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "swift")
+                .font(.system(size: 60))
+                .foregroundStyle(.orange)
+            Text("Hello, SwiftUI!")
+                .font(.title).bold()
+        }
+        .onAppear { print("Screen dikha") }
+    }
+}
+
+#Preview { ContentView() }`,
+login:`VStack(spacing: 16) {
+    Spacer()                              // upar khali jagah
+
+    Image(systemName: "lock.shield.fill")
+        .font(.system(size: 64))
+        .foregroundStyle(.blue)
+    Text("Welcome Back").font(.largeTitle).bold()
+
+    Spacer().frame(height: 24)            // fixed gap
+
+    TextField("Email", text: $email)
+        .textFieldStyle(.roundedBorder)
+    SecureField("Password", text: $password)
+        .textFieldStyle(.roundedBorder)
+
+    Spacer()                              // button ko neeche dhakela
+
+    Button("Login") { }
+        .frame(maxWidth: .infinity, minHeight: 50)
+        .background(.blue)
+        .foregroundStyle(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+}
+.padding(.horizontal, 24)                 // left/right margin`,
+nav:`struct HomeView: View {
+    @State private var showSettings = false
+
+    var body: some View {
+        NavigationStack {                            // = UINavigationController
+            List(["Aam", "Kela", "Seb"], id: \\.self) { fruit in
+                NavigationLink(fruit) {              // tap = push
+                    DetailView(name: fruit)          // data init se pass
+                }
+            }
+            .navigationTitle("Fruits")
+            .toolbar {
+                Button("Settings") { showSettings = true }
+            }
+            .sheet(isPresented: $showSettings) {     // = present(vc)
+                SettingsView()
+            }
+        }
+    }
+}
+
+struct DetailView: View {
+    let name: String
+    @Environment(\\.dismiss) private var dismiss    // = popViewController
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(name).font(.largeTitle)
+            Button("Wapas jao") { dismiss() }
+        }
+        .navigationTitle("Detail")
+    }
+}`,
+navcond:`struct LoginView: View {
+    @State private var password = ""
+    @State private var goToHome = false
+
+    var body: some View {
+        NavigationStack {
+            VStack {
+                SecureField("Password", text: $password)
+                    .textFieldStyle(.roundedBorder)
+                Button("Login") {
+                    if password == "1234" { goToHome = true }   // check, phir navigate
+                }
+            }
+            .padding()
+            .navigationDestination(isPresented: $goToHome) {
+                HomeView()
+            }
+        }
+    }
+}`,
+binding:`struct ParentView: View {
+    @State private var isOn = false              // data ka owner
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image(systemName: isOn ? "lightbulb.fill" : "lightbulb")
+                .font(.system(size: 70))
+                .foregroundStyle(isOn ? .yellow : .gray)
+            Text(isOn ? "Light ON" : "Light OFF")
+                .font(.title2).bold()
+            LightSwitch(isOn: $isOn)             // $ = binding bhejo
+        }
+    }
+}
+
+struct LightSwitch: View {
+    @Binding var isOn: Bool                      // parent ka data, copy nahi
+
+    var body: some View {
+        Button(isOn ? "Band karo" : "Chalu karo") {
+            isOn.toggle()                        // parent ki screen bhi badlegi
+        }
+        .buttonStyle(.borderedProminent)
+    }
+}`,
+f1:`import SwiftUI
+
+@main
+struct TaskApp: App {
+    @AppStorage("isLoggedIn") private var isLoggedIn = false
+    @State private var store = TaskStore()
+
+    var body: some Scene {
+        WindowGroup {
+            if isLoggedIn {
+                HomeView().environment(store)    // store sab screens ko mila
+            } else {
+                LoginView()
+            }
+        }
+    }
+}`,
+f2:`import Foundation
+import Observation
+
+struct TaskItem: Identifiable, Hashable {
+    let id = UUID()
+    var title: String
+    var isDone = false
+}
+
+@Observable
+class TaskStore {
+    var tasks: [TaskItem] = [
+        TaskItem(title: "SwiftUI seekho"),
+        TaskItem(title: "Spacer samjho"),
+        TaskItem(title: "Navigation try karo")
+    ]
+
+    func add(_ title: String) { tasks.append(TaskItem(title: title)) }
+
+    func toggle(_ task: TaskItem) {
+        if let i = tasks.firstIndex(where: { $0.id == task.id }) {
+            tasks[i].isDone.toggle()
+        }
+    }
+}`,
+f3:`import SwiftUI
+
+struct LoginView: View {
+    @AppStorage("isLoggedIn") private var isLoggedIn = false
+    @State private var email = ""
+    @State private var password = ""
+    @State private var showError = false
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            Image(systemName: "checklist")
+                .font(.system(size: 64)).foregroundStyle(.blue)
+            Text("My Tasks").font(.largeTitle).bold()
+            Spacer().frame(height: 24)
+            TextField("Email", text: $email)
+                .textFieldStyle(.roundedBorder)
+                .textInputAutocapitalization(.never)
+            SecureField("Password", text: $password)
+                .textFieldStyle(.roundedBorder)
+            Spacer()
+            Button {
+                if email.isEmpty || password.count < 4 { showError = true }
+                else { isLoggedIn = true }       // root khud HomeView ban jaayega
+            } label: {
+                Text("Login").bold().frame(maxWidth: .infinity, minHeight: 50)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(.horizontal, 24)
+        .alert("Email aur 4+ digit password daalo", isPresented: $showError) {
+            Button("OK") { }
+        }
+    }
+}`,
+f4:`import SwiftUI
+
+struct HomeView: View {
+    @Environment(TaskStore.self) private var store
+    @AppStorage("isLoggedIn") private var isLoggedIn = true
+    @State private var showAdd = false
+
+    var body: some View {
+        NavigationStack {
+            List(store.tasks) { task in
+                NavigationLink(value: task) {
+                    HStack {
+                        Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(task.isDone ? .green : .gray)
+                        Text(task.title)
+                    }
+                }
+            }
+            .navigationTitle("My Tasks")
+            .navigationDestination(for: TaskItem.self) { task in
+                DetailView(task: task)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Logout") { isLoggedIn = false }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Add", systemImage: "plus") { showAdd = true }
+                }
+            }
+            .sheet(isPresented: $showAdd) {
+                AddTaskView().environment(store)
+            }
+        }
+    }
+}
+
+#Preview { HomeView().environment(TaskStore()) }`,
+f5:`import SwiftUI
+
+struct DetailView: View {
+    @Environment(TaskStore.self) private var store
+    @Environment(\\.dismiss) private var dismiss
+    let task: TaskItem
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: task.isDone ? "checkmark.seal.fill" : "hourglass")
+                .font(.system(size: 80))
+                .foregroundStyle(task.isDone ? .green : .orange)
+            Text(task.title).font(.title).bold()
+            Text(task.isDone ? "Ho gaya" : "Abhi baaki hai")
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button(task.isDone ? "Wapas pending karo" : "Done mark karo") {
+                store.toggle(task)
+                dismiss()                         // wapas Home
+            }
+            .buttonStyle(.borderedProminent).controlSize(.large)
+        }
+        .padding(24)
+        .navigationTitle("Detail")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct AddTaskView: View {
+    @Environment(TaskStore.self) private var store
+    @Environment(\\.dismiss) private var dismiss
+    @State private var title = ""
+
+    var body: some View {
+        NavigationStack {                         // sheet ka apna nav bar
+            Form { TextField("Task ka naam", text: $title) }
+                .navigationTitle("Naya Task")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") { store.add(title); dismiss() }
+                            .disabled(title.isEmpty)
+                    }
+                }
+        }
+    }
+}`
+};
+const icon=(p,c,sz)=>`<svg viewBox="0 0 24 24" style="width:${sz}px;height:${sz}px;fill:${c}">${p}</svg>`;
+const P={lock:'<path d="M12 2a5 5 0 015 5v3h1a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8a2 2 0 012-2h1V7a5 5 0 015-5zm0 2a3 3 0 00-3 3v3h6V7a3 3 0 00-3-3z"/>',
+bulb:'<path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2zM9 19h6v1.5a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 20.5z"/>',
+check:'<path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1.5 14.5l-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4z"/>',
+circle:'<path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2a8 8 0 110 16 8 8 0 010-16z"/>',
+hour:'<path d="M6 2h12v5l-4 5 4 5v5H6v-5l4-5-4-5zm2 2v2.3l4 5 4-5V4z"/>',
+list:'<path d="M4 5h2v2H4zm4 0h12v2H8zM4 11h2v2H4zm4 0h12v2H8zM4 17h2v2H4zm4 0h12v2H8z"/>',
+bird:'<path d="M20 15c1-3 0-7-4-10 2 3 2 6 1 8C13 10 9 7 5 4c2 3 5 5 7 7-3-1-6-3-8-5 2 4 6 7 10 8-3 1-6 0-8-1 2 3 6 4 10 3 2 0 3 1 3 2 1-1 1-2 1-3z"/>'};
+const sb=`<div class="sb"><span>9:41</span><span class="isl"></span><span>100%</span></div>`;
+const scr=(inner,o={})=>`<div class="phone"><div class="scr ${o.gray?'':'white'}">${sb}${inner}${o.tab||''}<div class="home"></div>${o.over||''}</div></div>`;
+const card=(label,sub,inner,o)=>`<div class="pc">${scr(inner,o)}<b class="l">${label}</b>${sub?`<code>${sub}</code>`:''}</div>`;
+const arr=t=>`<div class="arrow"><span>→</span>${t}</div>`;
+const sp='<div class="spc">Spacer()</div>';
+const W='<div style="font-size:20px;font-weight:700">Welcome</div>',T='<div class="gray">Login karke aage badho</div>',B='<div class="btn" style="width:100%">Login</div>',Bs='<div class="btn">Login</div>';
+const bd=(st,x)=>`<div class="bd" style="${st}">${x}</div>`;
+
+document.getElementById('pStart').innerHTML=scr(bd('align-items:center;justify-content:center',`${icon(P.bird,'#ff9500',60)}<div style="font-size:22px;font-weight:700">Hello, SwiftUI!</div>`))+'<div class="cap">ContentView pehla screen</div>';
+
+document.getElementById('spacers').innerHTML=[
+ card('A. Spacer nahi','default: sab beech mein',bd('align-items:center;justify-content:center;gap:8px',W+T+Bs)),
+ card('B. Spacer aakhir mein','VStack { … ; Spacer() }',bd('align-items:center;gap:8px',W+T+Bs+sp)),
+ card('C. Spacer beech mein','Text … ; Spacer() ; Button',bd('align-items:center;gap:8px',W+T+sp+B)),
+ card('D. Do Spacer','Spacer ; Text ; Spacer ; Button',bd('align-items:center;gap:8px',sp+W+sp+B))
+].join('');
+
+document.getElementById('pLogin').innerHTML=scr(bd('align-items:center;gap:10px;padding:10px 18px 4px',`${sp}${icon(P.lock,'#007aff',52)}<div style="font-size:21px;font-weight:700">Welcome Back</div><div class="spc" style="flex:none;height:22px;width:100%">frame(height: 24)</div><div class="tf ph" style="width:100%">Email</div><div class="tf ph" style="width:100%">Password</div>${sp}<div class="btn" style="width:100%;padding:12px;border-radius:12px">Login</div>`))+'<div class="cap">Har iPhone size par balanced</div>';
+
+const navbar=(back,title,right)=>`<div class="bd" style="gap:6px;flex:none;padding-bottom:0"><div class="navs"><span class="blue">${back||''}</span><span class="blue">${right||''}</span></div>${title}</div>`;
+const fruits=['Aam','Kela','Seb'];
+document.getElementById('navFlow').innerHTML=
+ card('Home','NavigationStack',navbar('','<div class="navt">Fruits</div>','Settings')+bd('',`<div class="grp">${fruits.map((f,i)=>`<div class="row" style="${i==1?'background:#e5e5ea':''}">${f}<span class="chev">›</span></div>`).join('')}</div>`),{gray:1})+
+ arr('"Kela" tap<br>NavigationLink = push')+
+ card('Detail','back button khud aaya',navbar('‹ Back','<div class="navi" style="margin-top:-22px">Detail</div>')+bd('align-items:center;justify-content:center;gap:16px','<div style="font-size:30px">Kela</div><div class="blue">Wapas jao</div>'))+
+ arr('"Settings" tap<br>.sheet = modal')+
+ card('Sheet','neeche se aata hai',bd('',''),{gray:1,over:`<div class="dim" style="background:#0005"></div><div class="sheet" style="top:52px"><div class="grab"></div><div class="navi">Settings</div><div class="grp" style="margin-top:14px;background:#f2f2f7"><div class="row">Notifications<span class="tog"></span></div></div></div>`});
+
+const bulb=s=>card('Light '+s.toUpperCase(),s=='on'?'isOn = true':'isOn = false',bd('align-items:center;justify-content:center;gap:14px',`${icon(P.bulb,s=='on'?'#ffcc00':'#c7c7cc',64)}<div style="font-size:18px;font-weight:700">Light ${s.toUpperCase()}</div><div class="btn">${s=='on'?'Band karo':'Chalu karo'}</div>`));
+document.getElementById('pBind').innerHTML=bulb('off')+arr('Child ka button tap<br>parent ka @State badla')+bulb('on');
+const tasks=[['SwiftUI seekho',1],['Spacer samjho',0],['Navigation try karo',0]];
+const tlist=hl=>`<div class="grp">${tasks.map(([t,d],i)=>`<div class="row" style="justify-content:flex-start;${i==hl?'background:#e5e5ea':''}">${icon(d?P.check:P.circle,d?'#34c759':'#c7c7cc',18)}<span style="flex:1">${t}</span><span class="chev">›</span></div>`).join('')}</div>`;
+document.getElementById('appFlow').innerHTML=
+ card('LoginView','2 Spacer + padding',bd('align-items:center;gap:9px;padding:10px 16px 4px',`<div style="flex:1"></div>${icon(P.list,'#007aff',46)}<div style="font-size:20px;font-weight:700">My Tasks</div><div style="height:14px"></div><div class="tf" style="width:100%">rahul@mail.com</div><div class="tf" style="width:100%">••••</div><div style="flex:1"></div><div class="btn" style="width:100%;padding:11px">Login</div>`))+
+ arr('Login<br>isLoggedIn = true')+
+ card('HomeView','List + NavigationLink',navbar('Logout','<div class="navt">My Tasks</div>',icon('<path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/>','#007aff',18))+bd('',tlist(1)),{gray:1})+
+ arr('Task tap<br>push')+
+ card('DetailView','dismiss() se wapas',navbar('‹ Back','<div class="navi" style="margin-top:-22px">Detail</div>')+bd('align-items:center;gap:12px;padding-top:30px',`${icon(P.hour,'#ff9500',64)}<div style="font-size:19px;font-weight:700">Spacer samjho</div><div class="gray">Abhi baaki hai</div><div style="flex:1"></div><div class="btn" style="padding:11px 18px">Done mark karo</div>`))+
+ arr('+ tap<br>.sheet')+
+ card('AddTaskView','Save = list mein add',bd('',''),{gray:1,over:`<div class="dim" style="background:#0005"></div><div class="sheet" style="top:52px;background:#f2f2f7"><div class="grab"></div><div class="navs"><span class="blue">Cancel</span><b>Naya Task</b><span class="blue" style="font-weight:600">Save</span></div><div class="grp" style="margin-top:16px"><div class="row">Milk lana</div></div></div>`});
+
+const cheat=[['AppDelegate + SceneDelegate','@main struct MyApp: App'],['window.rootViewController','WindowGroup { ContentView() }'],['UIViewController','struct MyView: View'],['viewDidLoad / viewWillAppear','.onAppear { } / .task { }'],['UIStackView','VStack / HStack'],['Auto Layout constraints','Stack + Spacer + .padding + .frame'],['Leading/trailing = 0','.frame(maxWidth: .infinity)'],['UITableView','List'],['UINavigationController','NavigationStack'],['pushViewController / segue','NavigationLink'],['present(vc)','.sheet / .fullScreenCover'],['popViewController / dismiss','@Environment(\\.dismiss)'],['UIAlertController','.alert'],['UITabBarController','TabView'],['Delegate se data wapas','@Binding'],['label.text = …','@State badlo, UI khud update'],['UserDefaults','@AppStorage']];
+document.getElementById('cheatBody').innerHTML=cheat.map(([a,b])=>`<tr><td data-l="UIKit"><code>${a}</code></td><td data-l="SwiftUI"><code>${b}</code></td></tr>`).join('');
+
+document.getElementById('heroStrip').innerHTML=document.querySelectorAll('#appFlow .phone')[0].outerHTML+document.querySelectorAll('#appFlow .phone')[1].outerHTML;
+
+document.querySelectorAll('[data-code]').forEach(el=>{const k=el.dataset.code;el.innerHTML=`<button class="copy" data-k="${k}">Copy</button><pre><code>${hl(C[k])}</code></pre>`});
+document.addEventListener('click',async e=>{const b=e.target.closest('.copy');if(!b)return;try{await navigator.clipboard.writeText(C[b.dataset.k]);b.textContent='Copied!'}catch(_){b.textContent='Select karke copy karo'}setTimeout(()=>b.textContent='Copy',1600)});
+}
+</script>
+</body>
+</html>

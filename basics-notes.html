@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwiftUI Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly, clear reference — seekhne wale ke liye
+   IDEA: Xcode ka canvas — left code, right iPhone preview
+   PICTURE: har component ka live-jaisa iPhone screen
+   COLOUR and TYPE: iOS system blue on white / grouped gray, Inter + JetBrains Mono
+   LAYOUT: hero with phone strip, sticky category links, code|phone rows */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b0b0d);--ink:light-dark(#111113,#f2f2f7);--mut:light-dark(#5b5b63,#a1a1aa);--blue:#007aff;--card:light-dark(#f5f5f7,#17171a);--line:light-dark(#e3e3e8,#2a2a30);--codebg:#1d1f23;
+/* phone (always light iOS look) */--ph:#f2f2f7;--cell:#fff;--sep:#c6c6c8;--gray:#8e8e93}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+pre,.scroll{overflow-x:auto}.scroll a{flex:none}code{overflow-wrap:anywhere}html{scroll-padding-top:72px;scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+.hero{background:var(--blue);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:center}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0 0 14px;font-weight:800;text-wrap:balance;letter-spacing:-.02em}
+.hero p{font-size:17px;max-width:34em;margin:0;opacity:.92}
+.hero small{display:block;margin-top:16px;font-size:13px;opacity:.8}
+.strip{display:flex;gap:14px;justify-content:center}
+.strip .phone{transform:rotate(-4deg)}.strip .phone:nth-child(2){transform:translateY(-14px)}.strip .phone:nth-child(3){transform:rotate(4deg)}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .scroll{display:flex;gap:6px;padding:10px max(5vw,16px);max-width:1240px;margin:0 auto}
+nav a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:99px;background:var(--card);white-space:nowrap}
+nav a:hover,nav a:focus-visible{background:var(--blue);color:#fff;outline:none}
+h2{font-size:32px;line-height:1.05;margin:56px 0 6px;letter-spacing:-.01em}
+h2+p.sub{color:var(--mut);margin:0 0 24px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start;padding:28px 0;border-top:1px solid var(--line)}
+.item h3{font-size:20px;margin:0 0 4px}
+.item .d{color:var(--mut);margin:0 0 14px;max-width:60ch}
+.codebox{position:relative;background:var(--codebg);border-radius:14px}
+.codebox pre{margin:0;padding:18px 18px 18px;color:#e6e6e6;font:13.5px/1.6 'JetBrains Mono',ui-monospace,monospace}
+.copy{position:absolute;top:8px;right:8px;font:500 13px Inter,sans-serif;background:#ffffff1a;color:#fff;border:0;border-radius:8px;padding:0 12px;height:32px;cursor:pointer}
+.copy:hover,.copy:focus-visible{background:var(--blue);outline:none}
+.k{color:#ff7ab2}.t{color:#6bdfff}.s{color:#fc6a5d}.n{color:#d9c97c}.c{color:#7f8c98}
+/* phone */
+.phone{width:240px;height:440px;border-radius:38px;background:#111;padding:9px;box-shadow:0 18px 40px #0003,inset 0 0 0 2px #333;flex:none}
+.scr{position:relative;width:100%;height:100%;border-radius:30px;background:var(--ph);overflow:hidden;color:#000;font:13px/1.35 Inter,-apple-system,sans-serif;display:flex;flex-direction:column}
+.scr.white{background:#fff}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-weight:600;font-size:12px;flex:none}
+.isl{width:70px;height:20px;background:#000;border-radius:12px}
+.bd{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.ctr{align-items:center;justify-content:center}
+.home{height:4px;width:90px;background:#000;border-radius:3px;margin:6px auto 8px;flex:none}
+.cap{font-size:11px;color:var(--mut);text-align:center;margin-top:8px}
+.ttl{font-size:24px;font-weight:700;padding:2px 2px 0}
+.grp{background:var(--cell);border-radius:10px;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;min-height:38px;gap:8px}
+.row+.row{border-top:.5px solid var(--sep);margin-left:12px;padding-left:0}
+.gh{font-size:11px;color:var(--gray);text-transform:uppercase;padding:0 12px;margin-bottom:-6px}
+.btn{background:var(--blue);color:#fff;border-radius:9px;padding:8px 14px;font-weight:600;text-align:center}
+.btn.bord{background:#007aff22;color:var(--blue)}
+.btn.plain{background:none;color:var(--blue);font-weight:400}
+.btn.cap2{border-radius:99px}
+.btn.red{background:none;color:#ff3b30}
+.tog{width:40px;height:24px;border-radius:12px;background:#34c759;position:relative;flex:none}
+.tog::after{content:"";position:absolute;right:2px;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004}
+.tog.off{background:#e9e9eb}.tog.off::after{right:auto;left:2px}
+.sl{height:4px;background:#d1d1d6;border-radius:2px;position:relative;margin:10px 0}
+.sl i{position:absolute;left:0;top:0;height:4px;background:var(--blue);border-radius:2px}
+.sl b{position:absolute;top:-10px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0005;margin-left:-12px}
+.tf{background:#fff;border:1px solid #d1d1d6;border-radius:7px;padding:7px 9px;color:#000}
+.ph{color:#c4c4c6}
+.seg{display:flex;background:#e3e3e8;border-radius:8px;padding:2px}
+.seg span{flex:1;text-align:center;padding:4px 0;font-size:12px;font-weight:500;border-radius:6px}
+.seg .on{background:#fff;box-shadow:0 1px 3px #0002}
+.step{display:flex;background:#e9e9eb;border-radius:8px;font-size:16px}
+.step span{padding:2px 12px}.step span+span{border-left:1px solid #c6c6c8}
+.pv{height:4px;background:#e5e5ea;border-radius:2px;overflow:hidden}.pv i{display:block;height:100%;background:var(--blue)}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid #d1d1d6;border-top-color:#8e8e93;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.chev{color:#c4c4c6;font-size:16px}
+.tag{background:#e9e9eb;border-radius:6px;padding:3px 8px;font-size:12px}
+.blue{color:var(--blue)}.gray{color:var(--gray)}
+.tabbar{display:flex;justify-content:space-around;border-top:.5px solid var(--sep);background:#f9f9f9;padding:6px 0 0;flex:none;font-size:10px}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--gray)}.tabbar .on{color:var(--blue)}
+.dim{position:absolute;inset:0;background:#0006;display:flex;align-items:center;justify-content:center}
+.alert{width:180px;background:#f2f2f7ee;border-radius:13px;text-align:center;overflow:hidden}
+.alert .a1{padding:14px 12px 10px}.alert .a2{display:flex;border-top:.5px solid var(--sep)}
+.alert .a2 span{flex:1;padding:9px;color:var(--blue)}.alert .a2 span+span{border-left:.5px solid var(--sep);font-weight:600}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:46px;background:#fff;border-radius:12px 12px 0 0;padding:8px 14px}
+.grab{width:34px;height:5px;background:#c7c7cc;border-radius:3px;margin:0 auto 10px}
+.gridc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gridc div{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.menu{position:absolute;background:#f2f2f7f5;border-radius:12px;box-shadow:0 10px 30px #0003;width:170px;overflow:hidden}
+.menu div{padding:9px 12px;display:flex;justify-content:space-between}.menu div+div{border-top:.5px solid var(--sep)}
+.box{border-radius:8px;padding:8px 10px;color:#fff;font-weight:600;text-align:center}
+svg.i{width:1em;height:1em;vertical-align:-.15em;fill:currentColor}
+footer{color:var(--mut);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:860px){.hero .wrap{grid-template-columns:minmax(0,1fr)}.strip .phone:nth-child(3){display:none}}
+@media(max-width:700px){.item{grid-template-columns:minmax(0,1fr)}.item .pw{order:-1;justify-self:center}.strip .phone:nth-child(2){display:none}.strip .phone{transform:none}h2{font-size:28px}}
+@media(max-width:600px){table{font-size:13px}}
+
+.doc{max-width:820px;margin:0 auto}
+.doc h2{font-size:30px;margin:52px 0 10px;padding-top:8px;border-top:1px solid var(--line)}
+.doc h3{font-size:19px;margin:30px 0 8px}
+.doc p,.doc li{font-size:16.5px}
+.doc :not(pre)>code{font:14px 'JetBrains Mono',monospace;background:var(--card);padding:2px 6px;border-radius:5px}
+.doc pre{background:var(--codebg);color:#e6e6e6;border-radius:14px;padding:18px;font:13.5px/1.6 'JetBrains Mono',monospace;position:relative}
+.doc pre code{background:none;padding:0;font:inherit}
+.doc table{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0 18px;display:block;overflow-x:auto}
+.doc th,.doc td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.doc th{font-size:13px;color:var(--mut)}
+.doc li.task{list-style:none;margin-left:-22px}.doc li.task input{width:18px;height:18px;vertical-align:-3px;margin-right:8px}
+.doc a{color:var(--blue)}
+.toc{display:flex;flex-wrap:wrap;gap:6px}
+</style></head><body>
+<header class="band hero"><div class="wrap" style="display:block"><a href="index.html" style="display:inline-block;color:#fff;opacity:.9;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:14px">← Saare guides</a><h1>SwiftUI Basics — Junior Developer Guide</h1><p>UIKit se SwiftUI: app start, View, Spacer layout, navigation, property wrappers, chhota app aur cheat sheet. Sirf text aur code, padhne ke liye.</p></div></header>
+<main class="band"><div class="doc"><p>SwiftUI mein tum UI ko <strong>describe</strong> karte ho ("mujhe upar title, neeche button chahiye"), aur iOS khud usko screen par bana deta hai. UIKit ki tarah constraints, frames ya <code>viewDidLoad</code> mein views add karne ki zaroorat nahi padti.</p>
+<h2>Is doc ko kaise padhein</h2>
+<p>Auto Layout tumhe pehle se aata hai, isliye har topic mein UIKit se comparison diya hai. Order mein padho, kyunki aakhir mein ek chhota app (Login → Home → Detail) hai jo saare concepts ek saath use karta hai.</p>
+<ol>
+<li>App kaise start hota hai (AppDelegate/SceneDelegate ki jagah kya)</li>
+<li>View kya hota hai</li>
+<li>Layout: constraints ki jagah Stack + Spacer</li>
+<li>Navigation: button click se next screen</li>
+<li>Property wrappers: <code>@State</code>, <code>@Binding</code> aur baaki</li>
+<li>Chhota app shuru se aakhir tak</li>
+<li>UIKit ↔ SwiftUI cheat sheet</li>
+</ol>
+<p>Saara code Xcode 15+ aur iOS 17+ ke liye hai. Har code block ko naye SwiftUI project mein paste karke chala sakte ho.</p>
+<h2>1. App kaise start hota hai</h2>
+<p>SwiftUI app ek hi file se start hota hai: <code>@main</code> wala <code>App</code> struct. Wahi decide karta hai ki pehla screen (View) kaunsa hoga. AppDelegate, SceneDelegate aur storyboard ki zaroorat nahi hoti.</p>
+<h3>UIKit mein kya hota tha</h3>
+<ol>
+<li><code>main</code> → <code>UIApplicationMain</code> chalta tha → <code>AppDelegate</code> ka <code>didFinishLaunchingWithOptions</code> call hota tha.</li>
+<li><code>SceneDelegate</code> ka <code>scene(_:willConnectTo:)</code> window banata tha.</li>
+<li><code>window.rootViewController = ...</code> set hota tha, ya <code>Main.storyboard</code> ka initial view controller load hota tha.</li>
+<li>LaunchScreen.storyboard tab tak dikhta tha jab tak pehla screen ready na ho.</li>
+</ol>
+<h3>SwiftUI mein kya hota hai</h3>
+<p>Xcode mein naya project (Interface: <strong>SwiftUI</strong>) banao. Tumhe sirf do files milengi:</p>
+<pre class="cb"><code class="language-swift">// MyApp.swift  — app ka entry point
+import SwiftUI
+
+@main                      // &quot;app yahan se start hoga&quot;
+struct MyApp: App {
+    var body: some Scene {
+        WindowGroup {      // = UIWindow (iPad par multiple windows bhi)
+            ContentView()  // = rootViewController, yani pehla screen
+        }
+    }
+}
+</code></pre>
+<pre class="cb"><code class="language-swift">// ContentView.swift — pehla screen
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        Text(&quot;Hello, World!&quot;)
+    }
+}
+
+#Preview {                 // Xcode canvas mein live preview
+    ContentView()
+}
+</code></pre>
+<p>Flow simple hai: <code>@main</code> → <code>MyApp</code> → <code>WindowGroup</code> → <code>ContentView</code> ka <code>body</code> → screen par UI.</p>
+<h3>Launch screen ab kahan hai</h3>
+<p>Storyboard nahi hota. Target → <strong>Info</strong> tab mein <code>Launch Screen</code> (UILaunchScreen) key hoti hai. Wahan background color aur image (Assets se) set karte ho. Bas.</p>
+<h3>AppDelegate phir bhi chahiye ho to</h3>
+<p>Push notifications ya Firebase setup jaise kaam ke liye AppDelegate ko "jod" sakte ho:</p>
+<pre class="cb"><code class="language-swift">class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions:
+        [UIApplication.LaunchOptionsKey: Any]? = nil) -&gt; Bool {
+        print(&quot;App launch hua&quot;)   // Firebase.configure() etc.
+        return true
+    }
+}
+
+@main
+struct MyApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    var body: some Scene {
+        WindowGroup { ContentView() }
+    }
+}
+</code></pre>
+<h3>App foreground/background kab gaya</h3>
+<p>SceneDelegate ke <code>sceneDidBecomeActive</code> ki jagah <code>scenePhase</code> use karo:</p>
+<pre class="cb"><code class="language-swift">@main
+struct MyApp: App {
+    @Environment(\.scenePhase) private var phase
+
+    var body: some Scene {
+        WindowGroup { ContentView() }
+            .onChange(of: phase) { _, newPhase in
+                if newPhase == .active     { print(&quot;App active&quot;) }
+                if newPhase == .background { print(&quot;Background mein gaya&quot;) }
+            }
+    }
+}
+</code></pre>
+<h3>Screen aane par code chalana (viewDidLoad / viewWillAppear)</h3>
+<pre class="cb"><code class="language-swift">Text(&quot;Home&quot;)
+    .onAppear { print(&quot;Screen dikha&quot;) }      // ~ viewWillAppear
+    .onDisappear { print(&quot;Screen gaya&quot;) }    // ~ viewDidDisappear
+    .task { await loadData() }               // async API call, screen jaate hi cancel
+</code></pre>
+<h2>2. View kya hota hai</h2>
+<p>SwiftUI mein har screen aur har chhoti cheez ek <code>View</code> hai: ek <code>struct</code> jiske <code>body</code> mein likha hota hai ki UI kaisa dikhega. <code>UIViewController</code> + <code>UIView</code> dono ka kaam yahi ek struct karta hai.</p>
+<pre class="cb"><code class="language-swift">struct ProfileCard: View {          // 1. struct, class nahi
+    let name: String                 // 2. bahar se data aaya (init jaisa)
+
+    var body: some View {            // 3. yahi UI hai
+        VStack {
+            Image(systemName: &quot;person.circle.fill&quot;)
+                .font(.system(size: 60))
+            Text(name)
+                .font(.title2)
+                .bold()
+        }
+        .padding()                   // 4. modifiers
+        .background(.blue.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// Use karna: ProfileCard(name: &quot;Rahul&quot;)
+</code></pre>
+<p>Teen baatein yaad rakhni hain:</p>
+<ul>
+<li><strong>Struct hai, class nahi.</strong> View bahut halka hota hai. SwiftUI isko baar-baar dobara banata hai, isliye isme heavy kaam (API call) <code>body</code> ke andar mat likho.</li>
+<li><strong>Modifiers order se chalte hain.</strong> <code>.padding().background(.blue)</code> aur <code>.background(.blue).padding()</code> alag dikhte hain. Pehle mein padding ke saath background bada hota hai, doosre mein background sirf text jitna hota hai aur padding bahar khali jagah banti hai.</li>
+<li><strong>Chhote views banao.</strong> UIKit mein ek bada ViewController hota tha. SwiftUI mein screen ko chhote views (<code>ProfileCard</code>, <code>LoginButton</code>) mein todo aur jodo.</li>
+</ul>
+<pre class="cb"><code class="language-swift">// Modifier order ka farak
+Text(&quot;A&quot;).padding().background(.yellow)   // yellow box bada, text ke charo taraf
+Text(&quot;B&quot;).background(.yellow).padding()   // yellow sirf text par, bahar khali jagah
+</code></pre>
+<h2>3. Layout: constraints ki jagah Stack + Spacer</h2>
+<p>SwiftUI mein constraints nahi likhte. Views ko Stack mein rakhte ho, aur SwiftUI ka default rule hai: <strong>content utni hi jagah leta hai jitni use chahiye, aur poora group screen ke beech mein aa jaata hai.</strong> Jagah bharni ho ya cheez ko kinare dhakelna ho, to <code>Spacer()</code> lagate ho.</p>
+<h3>Teen stacks</h3>
+<table>
+<thead>
+<tr>
+<th>Stack</th>
+<th>Kya karta hai</th>
+<th>UIKit mein</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VStack</code></td>
+<td>Upar se neeche</td>
+<td>Vertical <code>UIStackView</code></td>
+</tr>
+<tr>
+<td><code>HStack</code></td>
+<td>Left se right</td>
+<td>Horizontal <code>UIStackView</code></td>
+</tr>
+<tr>
+<td><code>ZStack</code></td>
+<td>Ek ke upar ek (layers)</td>
+<td><code>addSubview</code> se overlap</td>
+</tr>
+</tbody>
+</table>
+<h3>Default kaisa dikhta hai (Spacer ke bina)</h3>
+<pre class="cb"><code class="language-swift">VStack {
+    Text(&quot;Welcome&quot;).font(.largeTitle)
+    Text(&quot;Login karke aage badho&quot;)
+    Button(&quot;Login&quot;) { }
+        .buttonStyle(.borderedProminent)
+}
+</code></pre>
+<p>Isme koi constraint nahi hai, phir bhi teeno cheezein <strong>screen ke bilkul beech</strong> mein aa jaati hain. Inke beech chhota default gap (lagbhag 8 point) hota hai, aur stack ki chaudai sabse chaude child jitni hoti hai.</p>
+<h3>Spacer lagane ke baad</h3>
+<p><code>Spacer()</code> ek khali view hai jo <strong>jitni jagah bachi hai, saari le leta hai</strong>. Stack mein jahan lagao, wahan se cheezein door dhakel deta hai.</p>
+<pre class="cb"><code class="language-swift">// B: content upar, baaki jagah neeche khali
+VStack {
+    Text(&quot;Welcome&quot;)
+    Text(&quot;Login karke aage badho&quot;)
+    Button(&quot;Login&quot;) { }
+    Spacer()                // neeche dhakelta hai
+}
+
+// C: button neeche chipak gaya, text upar
+VStack {
+    Text(&quot;Welcome&quot;)
+    Text(&quot;Login karke aage badho&quot;)
+    Spacer()                // beech ki saari jagah
+    Button(&quot;Login&quot;) { }
+}
+
+// D: do Spacer = jagah barabar baat li
+VStack {
+    Spacer()
+    Text(&quot;Welcome&quot;)
+    Spacer()
+    Button(&quot;Login&quot;) { }
+}
+</code></pre>
+<p>Rule: <strong>ek stack mein jitne Spacer, bachi hui jagah utne barabar hisson mein baat jaati hai.</strong> HStack mein bhi same: <code>HStack { Text("Left"); Spacer(); Text("Right") }</code> se ek left aur ek right kinare par chala jaata hai.</p>
+<h3>Spacing khud set karna</h3>
+<pre class="cb"><code class="language-swift">VStack(spacing: 20) { ... }          // har child ke beech 20pt (default ~8)
+VStack(spacing: 0) { ... }           // bilkul chipke hue
+
+Spacer().frame(height: 40)           // fixed 40pt ka gap (constant constraint jaisa)
+Spacer(minLength: 16)                // kam se kam 16pt, zyada jagah ho to badhega
+</code></pre>
+<h3>Padding = margin/inset</h3>
+<pre class="cb"><code class="language-swift">Text(&quot;Hello&quot;)
+    .padding()                       // charo taraf ~16pt (system default)
+    .padding(.horizontal, 24)        // sirf left + right 24pt
+    .padding(.top, 50)               // sirf upar 50pt
+</code></pre>
+<h3>Alignment: left, right, center</h3>
+<pre class="cb"><code class="language-swift">VStack(alignment: .leading) {        // stack ke andar sab left aligned
+    Text(&quot;Naam&quot;)
+    Text(&quot;Bahut lamba address yahan&quot;)
+}
+
+Text(&quot;Left mein&quot;)
+    .frame(maxWidth: .infinity, alignment: .leading)   // full width, text left
+
+Button(&quot;Login&quot;) { }
+    .frame(maxWidth: .infinity)      // button poori chaudai le
+    .frame(height: 50)               // fixed height
+</code></pre>
+<p><code>.frame(maxWidth: .infinity)</code> ka matlab hai "leading aur trailing dono constraint 0 par lagao". Constraints wale dimaag ke liye yeh sabse kaam ki line hai.</p>
+<h3>Safe area</h3>
+<p>SwiftUI content default mein safe area ke andar rakhta hai (notch aur home indicator se bach ke). Background poori screen par chahiye to:</p>
+<pre class="cb"><code class="language-swift">ZStack {
+    Color.blue.ignoresSafeArea()     // background edge to edge
+    Text(&quot;Content safe area mein&quot;)
+}
+</code></pre>
+<h3>Ek perfect login screen layout</h3>
+<pre class="cb"><code class="language-swift">struct LoginLayout: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()                                  // upar ki khali jagah
+
+            Image(systemName: &quot;lock.shield.fill&quot;)
+                .font(.system(size: 70))
+                .foregroundStyle(.blue)
+            Text(&quot;Welcome Back&quot;).font(.largeTitle).bold()
+
+            Spacer().frame(height: 24)                // logo aur form ke beech fixed gap
+
+            TextField(&quot;Email&quot;, text: .constant(&quot;&quot;))
+                .textFieldStyle(.roundedBorder)
+            SecureField(&quot;Password&quot;, text: .constant(&quot;&quot;))
+                .textFieldStyle(.roundedBorder)
+
+            Spacer()                                  // form ko upar, button ko neeche
+
+            Button(&quot;Login&quot;) { }
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .background(.blue)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .padding(.horizontal, 24)                     // left/right margin
+        .padding(.bottom, 16)
+    }
+}
+</code></pre>
+<p>Do Spacer hain, to bachi hui jagah upar aur form ke neeche barabar batti hai. Isliye har iPhone size par screen balanced dikhti hai, alag constraint likhne ki zaroorat nahi.</p>
+<h2>4. Navigation: button click se next screen</h2>
+<p>Pehle screen ko <code>NavigationStack</code> mein lapeto (yeh <code>UINavigationController</code> hai). Phir <code>NavigationLink</code> tap karne par next screen push hoti hai. <code>pushViewController</code> ya segue likhne ki zaroorat nahi.</p>
+<h3>Tarika 1: NavigationLink (sabse simple)</h3>
+<pre class="cb"><code class="language-swift">struct HomeView: View {
+    var body: some View {
+        NavigationStack {                      // = UINavigationController
+            VStack(spacing: 20) {
+                Text(&quot;Home Screen&quot;)
+
+                NavigationLink(&quot;Detail par jao&quot;) {   // tap = push
+                    DetailView(message: &quot;Home se aaya hoon&quot;)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .navigationTitle(&quot;Home&quot;)           // = self.title
+        }
+    }
+}
+
+struct DetailView: View {
+    let message: String                        // data pass hua (init se)
+
+    var body: some View {
+        Text(message)
+            .navigationTitle(&quot;Detail&quot;)
+            // Back button khud aata hai, swipe-back bhi
+    }
+}
+</code></pre>
+<h3>Tarika 2: Button se, condition check karke (login ke baad jaana)</h3>
+<p>Kabhi button dabane par pehle kuch check karna hota hai (jaise password sahi hai ya nahi). Tab ek <code>Bool</code> state rakho aur <code>.navigationDestination(isPresented:)</code> lagao:</p>
+<pre class="cb"><code class="language-swift">struct LoginView: View {
+    @State private var goToHome = false
+    @State private var password = &quot;&quot;
+
+    var body: some View {
+        NavigationStack {
+            VStack {
+                SecureField(&quot;Password&quot;, text: $password)
+                    .textFieldStyle(.roundedBorder)
+
+                Button(&quot;Login&quot;) {
+                    if password == &quot;1234&quot; {     // check pass hua
+                        goToHome = true         // ab navigate karo
+                    }
+                }
+            }
+            .padding()
+            .navigationDestination(isPresented: $goToHome) {
+                HomeView()
+            }
+        }
+    }
+}
+</code></pre>
+<h3>Tarika 3: List se, data ke hisab se (value-based)</h3>
+<pre class="cb"><code class="language-swift">struct FruitList: View {
+    let fruits = [&quot;Aam&quot;, &quot;Kela&quot;, &quot;Seb&quot;]
+
+    var body: some View {
+        NavigationStack {
+            List(fruits, id: \.self) { fruit in
+                NavigationLink(fruit, value: fruit)   // sirf value bhejo
+            }
+            .navigationDestination(for: String.self) { fruit in
+                Text(&quot;Tumne \(fruit) chuna&quot;)          // value ke hisab se screen
+            }
+            .navigationTitle(&quot;Fruits&quot;)
+        }
+    }
+}
+</code></pre>
+<h3>Code se wapas jaana (popViewController / dismiss)</h3>
+<pre class="cb"><code class="language-swift">struct DetailView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Button(&quot;Wapas jao&quot;) {
+            dismiss()                 // = popViewController / dismiss(animated:)
+        }
+    }
+}
+</code></pre>
+<h3>Modal (present) karna: sheet aur fullScreenCover</h3>
+<pre class="cb"><code class="language-swift">struct SettingsButton: View {
+    @State private var showSettings = false
+
+    var body: some View {
+        Button(&quot;Settings kholo&quot;) { showSettings = true }
+            .sheet(isPresented: $showSettings) {        // neeche se card
+                SettingsView()
+            }
+            // .fullScreenCover(isPresented: $showSettings) { ... }  // poori screen
+    }
+}
+</code></pre>
+<p><strong>Yaad rakho:</strong> <code>NavigationStack</code> sirf <strong>ek baar</strong>, sabse bahar wali screen par lagta hai. Detail screen ke andar dobara mat lagana, warna do navigation bar ban jaate hain.</p>
+<h2>5. Property wrappers: data badla to UI khud badlega</h2>
+<p>SwiftUI mein <code>label.text = "..."</code> jaisa UI ko haath se update nahi karte. Data ko ek property wrapper (<code>@State</code> waghera) mein rakhte ho. <strong>Data badla, to SwiftUI <code>body</code> dobara chalata hai aur screen khud update ho jaati hai.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Wrapper</th>
+<th>Kab use karo</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@State</code></td>
+<td>Is screen ka apna chhota data</td>
+<td>Toggle on/off, TextField text, counter</td>
+</tr>
+<tr>
+<td><code>@Binding</code></td>
+<td>Parent ka <code>@State</code> child ko dena, taaki child badal sake</td>
+<td>Custom toggle/textfield view</td>
+</tr>
+<tr>
+<td><code>@Observable</code> class + <code>@State</code></td>
+<td>Bada data ya logic (ViewModel), iOS 17+</td>
+<td>User profile, API se aayi list</td>
+</tr>
+<tr>
+<td><code>@Environment</code></td>
+<td>System ki values ya poori app mein share hua object</td>
+<td><code>dismiss</code>, <code>colorScheme</code>, shared ViewModel</td>
+</tr>
+<tr>
+<td><code>@AppStorage</code></td>
+<td>Chhoti setting jo app band hone ke baad bhi rahe</td>
+<td>Dark mode, "logged in hai?" (UserDefaults)</td>
+</tr>
+</tbody>
+</table>
+<h3>@State: screen ka apna data</h3>
+<pre class="cb"><code class="language-swift">struct CounterView: View {
+    @State private var count = 0        // hamesha private rakho
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(&quot;Count: \(count)&quot;)     // count badla = Text khud badla
+                .font(.largeTitle)
+            Button(&quot;+1&quot;) { count += 1 }  // label update ka code nahi likha
+        }
+    }
+}
+</code></pre>
+<h3>@Binding: child ko parent ka data badalne do</h3>
+<p><code>$</code> lagane se <strong>binding</strong> banti hai, yani us data ka "reference". Child usko padh bhi sakta hai aur badal bhi sakta hai.</p>
+<pre class="cb"><code class="language-swift">struct ParentView: View {
+    @State private var isOn = false
+
+    var body: some View {
+        VStack {
+            Text(isOn ? &quot;Light ON&quot; : &quot;Light OFF&quot;)
+            LightSwitch(isOn: $isOn)          // $ = binding bhejo
+        }
+    }
+}
+
+struct LightSwitch: View {
+    @Binding var isOn: Bool                  // parent ka data, copy nahi
+
+    var body: some View {
+        Button(isOn ? &quot;Band karo&quot; : &quot;Chalu karo&quot;) {
+            isOn.toggle()                    // parent ka Text bhi badlega
+        }
+    }
+}
+</code></pre>
+<p>UIKit mein yeh kaam delegate ya closure se hota tha.</p>
+<h3>@Observable: ViewModel (MVVM)</h3>
+<pre class="cb"><code class="language-swift">import Observation
+
+@Observable
+class ProfileViewModel {
+    var name = &quot;Guest&quot;
+    var isLoading = false
+
+    func load() async {
+        isLoading = true
+        try? await Task.sleep(for: .seconds(1))  // API call jaisa
+        name = &quot;Rahul Sharma&quot;
+        isLoading = false
+    }
+}
+
+struct ProfileView: View {
+    @State private var vm = ProfileViewModel()   // screen ViewModel ka owner
+
+    var body: some View {
+        VStack {
+            if vm.isLoading { ProgressView() }
+            else { Text(vm.name).font(.title) }
+        }
+        .task { await vm.load() }                // screen aate hi load
+    }
+}
+</code></pre>
+<p>Purane code (iOS 13–16) mein yahi kaam <code>class VM: ObservableObject</code> + <code>@Published var</code> + <code>@StateObject</code> se hota hai. Project mein dikhe to samajh lena same cheez hai.</p>
+<h3>@Environment aur @AppStorage</h3>
+<pre class="cb"><code class="language-swift">struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss        // screen band karna
+    @Environment(\.colorScheme) private var scheme     // light/dark
+    @AppStorage(&quot;isDarkMode&quot;) private var isDarkMode = false   // UserDefaults mein save
+
+    var body: some View {
+        Form {
+            Toggle(&quot;Dark Mode&quot;, isOn: $isDarkMode)
+            Text(&quot;Abhi: \(scheme == .dark ? &quot;Dark&quot; : &quot;Light&quot;)&quot;)
+            Button(&quot;Close&quot;) { dismiss() }
+        }
+    }
+}
+</code></pre>
+<h2>6. Chhota app banao: "My Tasks"</h2>
+<p>Yeh chhota app upar ke saare concepts ek saath use karta hai: <code>@main</code> se start, Login screen, login ke baad Home list, tap par Detail, aur <code>+</code> dabane par sheet. Naya Xcode project banao (Interface: SwiftUI, naam <code>MyTasks</code>) aur yeh files daalo. Iska poora code screens ke saath <strong>SwiftUI Basics</strong> page (images wala) mein bhi hai.</p>
+<h3>App ka flow</h3>
+<ol>
+<li>App khula → <code>TaskApp</code> (<code>@main</code>) dekhta hai <code>isLoggedIn</code> true hai ya false.</li>
+<li>False → <code>LoginView</code> dikhta hai. Login dabaya → <code>isLoggedIn = true</code> → SwiftUI khud <code>HomeView</code> par switch kar deta hai.</li>
+<li><code>HomeView</code> mein task par tap → <code>NavigationLink</code> → <code>DetailView</code> push hota hai.</li>
+<li>Detail mein "Done mark karo" → store update → <code>dismiss()</code> → wapas Home, jahan list khud update dikhegi.</li>
+<li>Home par <code>+</code> → <code>AddTaskView</code> sheet. Save → naya task list mein.</li>
+<li>Logout → <code>isLoggedIn = false</code> → wapas Login. App band karke kholo to login yaad rehta hai (<code>@AppStorage</code>).</li>
+</ol>
+<h3>File 1: TaskApp.swift (entry point)</h3>
+<pre class="cb"><code class="language-swift">import SwiftUI
+
+@main
+struct TaskApp: App {
+    @AppStorage(&quot;isLoggedIn&quot;) private var isLoggedIn = false   // UserDefaults
+    @State private var store = TaskStore()                     // poori app ka data
+
+    var body: some Scene {
+        WindowGroup {
+            if isLoggedIn {
+                HomeView()
+                    .environment(store)    // store saare child screens ko mila
+            } else {
+                LoginView()
+            }
+        }
+    }
+}
+</code></pre>
+<h3>File 2: TaskStore.swift (data + logic)</h3>
+<pre class="cb"><code class="language-swift">import Foundation
+import Observation
+
+struct TaskItem: Identifiable, Hashable {
+    let id = UUID()
+    var title: String
+    var isDone = false
+}
+
+@Observable
+class TaskStore {
+    var tasks: [TaskItem] = [
+        TaskItem(title: &quot;SwiftUI seekho&quot;),
+        TaskItem(title: &quot;Spacer samjho&quot;),
+        TaskItem(title: &quot;Navigation try karo&quot;)
+    ]
+
+    func add(_ title: String) {
+        tasks.append(TaskItem(title: title))
+    }
+
+    func toggle(_ task: TaskItem) {
+        if let i = tasks.firstIndex(where: { $0.id == task.id }) {
+            tasks[i].isDone.toggle()
+        }
+    }
+}
+</code></pre>
+<h3>File 3: LoginView.swift</h3>
+<pre class="cb"><code class="language-swift">import SwiftUI
+
+struct LoginView: View {
+    @AppStorage(&quot;isLoggedIn&quot;) private var isLoggedIn = false
+    @State private var email = &quot;&quot;
+    @State private var password = &quot;&quot;
+    @State private var showError = false
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            Image(systemName: &quot;checklist&quot;)
+                .font(.system(size: 70))
+                .foregroundStyle(.blue)
+            Text(&quot;My Tasks&quot;)
+                .font(.largeTitle).bold()
+
+            Spacer().frame(height: 24)
+
+            TextField(&quot;Email&quot;, text: $email)
+                .textFieldStyle(.roundedBorder)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+            SecureField(&quot;Password&quot;, text: $password)
+                .textFieldStyle(.roundedBorder)
+
+            Spacer()
+
+            Button {
+                if email.isEmpty || password.count &lt; 4 {
+                    showError = true
+                } else {
+                    isLoggedIn = true          // root khud HomeView ban jaayega
+                }
+            } label: {
+                Text(&quot;Login&quot;).bold()
+                    .frame(maxWidth: .infinity, minHeight: 50)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
+        .alert(&quot;Email aur 4+ digit password daalo&quot;, isPresented: $showError) {
+            Button(&quot;OK&quot;) { }
+        }
+    }
+}
+
+#Preview { LoginView() }
+</code></pre>
+<h3>File 4: HomeView.swift</h3>
+<pre class="cb"><code class="language-swift">import SwiftUI
+
+struct HomeView: View {
+    @Environment(TaskStore.self) private var store
+    @AppStorage(&quot;isLoggedIn&quot;) private var isLoggedIn = true
+    @State private var showAdd = false
+
+    var body: some View {
+        NavigationStack {
+            List(store.tasks) { task in
+                NavigationLink(value: task) {              // tap = Detail push
+                    HStack {
+                        Image(systemName: task.isDone ? &quot;checkmark.circle.fill&quot; : &quot;circle&quot;)
+                            .foregroundStyle(task.isDone ? .green : .gray)
+                        Text(task.title)
+                    }
+                }
+            }
+            .navigationTitle(&quot;My Tasks&quot;)
+            .navigationDestination(for: TaskItem.self) { task in
+                DetailView(task: task)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(&quot;Logout&quot;) { isLoggedIn = false }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(&quot;Add&quot;, systemImage: &quot;plus&quot;) { showAdd = true }
+                }
+            }
+            .sheet(isPresented: $showAdd) {
+                AddTaskView()
+                    .environment(store)
+            }
+        }
+    }
+}
+
+#Preview {
+    HomeView().environment(TaskStore())
+}
+</code></pre>
+<h3>File 5: DetailView.swift aur AddTaskView.swift</h3>
+<pre class="cb"><code class="language-swift">import SwiftUI
+
+struct DetailView: View {
+    @Environment(TaskStore.self) private var store
+    @Environment(\.dismiss) private var dismiss
+    let task: TaskItem
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: task.isDone ? &quot;checkmark.seal.fill&quot; : &quot;hourglass&quot;)
+                .font(.system(size: 80))
+                .foregroundStyle(task.isDone ? .green : .orange)
+            Text(task.title)
+                .font(.title).bold()
+            Text(task.isDone ? &quot;Ho gaya&quot; : &quot;Abhi baaki hai&quot;)
+                .foregroundStyle(.secondary)
+
+            Spacer()                                       // button neeche
+
+            Button(task.isDone ? &quot;Wapas pending karo&quot; : &quot;Done mark karo&quot;) {
+                store.toggle(task)
+                dismiss()                                  // wapas Home
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+        }
+        .padding(24)
+        .navigationTitle(&quot;Detail&quot;)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct AddTaskView: View {
+    @Environment(TaskStore.self) private var store
+    @Environment(\.dismiss) private var dismiss
+    @State private var title = &quot;&quot;
+
+    var body: some View {
+        NavigationStack {                                  // sheet ka apna nav bar
+            Form {
+                TextField(&quot;Task ka naam&quot;, text: $title)
+            }
+            .navigationTitle(&quot;Naya Task&quot;)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(&quot;Cancel&quot;) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(&quot;Save&quot;) {
+                        store.add(title)
+                        dismiss()
+                    }
+                    .disabled(title.isEmpty)
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p>Sheet ek alag modal hai, isliye uske andar apna <code>NavigationStack</code> lagana theek hai. "Ek hi NavigationStack" wala rule push hone wali screens ke liye hai.</p>
+<h3>Junior ke liye practice</h3>
+<ul>
+<li class="task"><input type="checkbox" aria-label="done"> App chalao aur poora flow (Login → Home → Detail → wapas) try karo</li>
+<li class="task"><input type="checkbox" aria-label="done"> LoginView mein Spacer hata ke dekho layout kaise badalta hai</li>
+<li class="task"><input type="checkbox" aria-label="done"> Detail screen par task delete karne ka button add karo</li>
+<li class="task"><input type="checkbox" aria-label="done"> Home list mein swipe-to-delete lagao (<code>.onDelete</code>)</li>
+<li class="task"><input type="checkbox" aria-label="done"> Settings screen banao jisme dark mode toggle ho (<code>@AppStorage</code>)</li>
+</ul>
+<h2>7. UIKit → SwiftUI cheat sheet</h2>
+<table>
+<thead>
+<tr>
+<th>UIKit</th>
+<th>SwiftUI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AppDelegate</code> + <code>SceneDelegate</code></td>
+<td><code>@main struct MyApp: App</code> (+ <code>@UIApplicationDelegateAdaptor</code> agar chahiye)</td>
+</tr>
+<tr>
+<td><code>window.rootViewController</code></td>
+<td><code>WindowGroup { ContentView() }</code></td>
+</tr>
+<tr>
+<td><code>UIViewController</code></td>
+<td><code>struct MyView: View</code></td>
+</tr>
+<tr>
+<td><code>viewDidLoad</code> / <code>viewWillAppear</code></td>
+<td><code>.onAppear { }</code> / <code>.task { }</code></td>
+</tr>
+<tr>
+<td><code>UILabel</code></td>
+<td><code>Text</code></td>
+</tr>
+<tr>
+<td><code>UIImageView</code></td>
+<td><code>Image</code></td>
+</tr>
+<tr>
+<td><code>UIButton</code> + <code>addTarget</code></td>
+<td><code>Button("Title") { action }</code></td>
+</tr>
+<tr>
+<td><code>UITextField</code></td>
+<td><code>TextField</code> / <code>SecureField</code></td>
+</tr>
+<tr>
+<td><code>UISwitch</code></td>
+<td><code>Toggle</code></td>
+</tr>
+<tr>
+<td><code>UITableView</code> / <code>UICollectionView</code></td>
+<td><code>List</code> / <code>LazyVGrid</code></td>
+</tr>
+<tr>
+<td><code>UIStackView</code></td>
+<td><code>VStack</code> / <code>HStack</code></td>
+</tr>
+<tr>
+<td>Auto Layout constraints</td>
+<td>Stacks + <code>Spacer</code> + <code>.padding</code> + <code>.frame</code></td>
+</tr>
+<tr>
+<td>Leading/trailing = 0</td>
+<td><code>.frame(maxWidth: .infinity)</code></td>
+</tr>
+<tr>
+<td><code>UINavigationController</code></td>
+<td><code>NavigationStack</code></td>
+</tr>
+<tr>
+<td><code>pushViewController</code> / segue</td>
+<td><code>NavigationLink</code> / <code>.navigationDestination</code></td>
+</tr>
+<tr>
+<td><code>present(vc, animated:)</code></td>
+<td><code>.sheet</code> / <code>.fullScreenCover</code></td>
+</tr>
+<tr>
+<td><code>popViewController</code> / <code>dismiss</code></td>
+<td><code>@Environment(\.dismiss)</code> → <code>dismiss()</code></td>
+</tr>
+<tr>
+<td><code>UIAlertController</code></td>
+<td><code>.alert</code> / <code>.confirmationDialog</code></td>
+</tr>
+<tr>
+<td><code>UITabBarController</code></td>
+<td><code>TabView</code></td>
+</tr>
+<tr>
+<td>Delegate / closure se data wapas</td>
+<td><code>@Binding</code></td>
+</tr>
+<tr>
+<td><code>label.text = ...</code> (manual update)</td>
+<td><code>@State</code> badlo, UI khud update</td>
+</tr>
+<tr>
+<td><code>UserDefaults</code></td>
+<td><code>@AppStorage</code></td>
+</tr>
+<tr>
+<td>Storyboard / XIB</td>
+<td><code>#Preview</code> (code hi UI hai)</td>
+</tr>
+</tbody>
+</table>
+<h2>Common galtiyan</h2>
+<ul>
+<li><strong>Har screen mein <code>NavigationStack</code>.</strong> Sirf root par lagao, warna double navigation bar aata hai.</li>
+<li><strong><code>@State</code> ko private na rakhna.</strong> <code>@State</code> hamesha <code>private var</code> ho. Bahar se data chahiye to <code>let</code> ya <code>@Binding</code> use karo.</li>
+<li><strong><code>body</code> ke andar API call.</strong> <code>body</code> baar-baar chalta hai. API call <code>.task { }</code> mein karo.</li>
+<li><strong>Spacer ka zyada use.</strong> Fixed gap chahiye to <code>VStack(spacing:)</code> ya <code>.padding</code>. Spacer tab, jab cheez ko kinare tak dhakelna ho.</li>
+<li><strong>Modifier order bhool jaana.</strong> <code>.padding().background()</code> aur <code>.background().padding()</code> alag dikhte hain. Background ko padding ke saath bada chahiye to padding pehle lagao.</li>
+<li><strong>Frame se fixed width dena.</strong> <code>.frame(width: 375)</code> mat likho. <code>.frame(maxWidth: .infinity)</code> + <code>.padding</code> har iPhone par sahi dikhta hai.</li>
+</ul>
+<p>Aage seekhne ke liye: Apple ka official <a href="https://developer.apple.com/tutorials/swiftui">SwiftUI Tutorials</a> (Landmarks app) isi doc ke baad best next step hai.</p></div></main>
+<script>{const S={
+star:'<svg class="i" viewBox="0 0 24 24"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z"/></svg>',
+heart:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg>',
+house:'<svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>',
+gear:'<svg class="i" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-2.2-.6-.6-1.5 1.1-2-1.7-1.7-2 1.1-1.5-.6L13.5 3h-3l-.6 2.2-1.5.6-2-1.1L4.7 6.4l1.1 2-.6 1.5L3 10.5v3l2.2.6.6 1.5-1.1 2 1.7 1.7 2-1.1 1.5.6.6 2.2h3l.6-2.2 1.5-.6 2 1.1 1.7-1.7-1.1-2 .6-1.5L21 13.5z"/></svg>',
+person:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>',
+bell:'<svg class="i" viewBox="0 0 24 24"><path d="M12 22a2.5 2.5 0 002.5-2.5h-5A2.5 2.5 0 0012 22zm7-6V11a7 7 0 00-5.5-6.8V3h-3v1.2A7 7 0 005 11v5l-2 2v1h18v-1z"/></svg>',
+plus:'<svg class="i" viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>',
+search:'<svg class="i" viewBox="0 0 24 24"><path d="M10 3a7 7 0 015.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1110 3zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>',
+tray:'<svg class="i" viewBox="0 0 24 24"><path d="M3 13l3-9h12l3 9v7H3zm2.2 0H9a3 3 0 006 0h3.8l-2.2-7H7.4z"/></svg>'
+};
+const ph=(body,o={})=>`<div class="phone"><div class="scr ${o.white?'white':''}"><div class="sb"><span>9:41</span><span class="isl"></span><span>100%</span></div>${o.raw?body:`<div class="bd ${o.ctr?'ctr':''}">${body}</div>`}${o.tab||''}<div class="home"></div>${o.over||''}</div></div>`;
+const hl=src=>src.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+ .replace(/("(?:[^"\\]|\\.)*")|(\/\/[^\n]*)|\b(struct|var|let|some|import|func|private|static|in|true|false|@State|@Binding|for|if|else)\b|(@State|@Environment)|\b([A-Z][A-Za-z]+)\b|\b(\d+(?:\.\d+)?)\b/g,(m,s,c,k,a,t,n)=>s?`<span class="s">${s}</span>`:c?`<span class="c">${c}</span>`:k?`<span class="k">${k}</span>`:a?`<span class="k">${a}</span>`:t?`<span class="t">${t}</span>`:`<span class="n">${n}</span>`)
+ .replace(/<span class="k">@<\/span>/g,'@');
+
+
+document.querySelectorAll('.doc pre code').forEach(c=>{const raw=c.textContent;c.innerHTML=hl(raw);const b=document.createElement('button');b.className='copy';b.textContent='Copy';c.parentNode.appendChild(b);b.onclick=async()=>{try{await navigator.clipboard.writeText(raw);b.textContent='Copied!'}catch(_){b.textContent='Select karke copy karo'}setTimeout(()=>b.textContent='Copy',1600)}});
+}</script></body></html>

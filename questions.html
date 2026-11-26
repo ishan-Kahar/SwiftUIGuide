@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwiftUI Interview Questions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly, clear reference — seekhne wale ke liye
+   IDEA: Xcode ka canvas — left code, right iPhone preview
+   PICTURE: har component ka live-jaisa iPhone screen
+   COLOUR and TYPE: iOS system blue on white / grouped gray, Inter + JetBrains Mono
+   LAYOUT: hero with phone strip, sticky category links, code|phone rows */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b0b0d);--ink:light-dark(#111113,#f2f2f7);--mut:light-dark(#5b5b63,#a1a1aa);--blue:#007aff;--card:light-dark(#f5f5f7,#17171a);--line:light-dark(#e3e3e8,#2a2a30);--codebg:#1d1f23;
+/* phone (always light iOS look) */--ph:#f2f2f7;--cell:#fff;--sep:#c6c6c8;--gray:#8e8e93}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+pre,.scroll{overflow-x:auto}.scroll a{flex:none}code{overflow-wrap:anywhere}html{scroll-padding-top:72px;scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+.hero{background:var(--blue);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:center}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0 0 14px;font-weight:800;text-wrap:balance;letter-spacing:-.02em}
+.hero p{font-size:17px;max-width:34em;margin:0;opacity:.92}
+.hero small{display:block;margin-top:16px;font-size:13px;opacity:.8}
+.strip{display:flex;gap:14px;justify-content:center}
+.strip .phone{transform:rotate(-4deg)}.strip .phone:nth-child(2){transform:translateY(-14px)}.strip .phone:nth-child(3){transform:rotate(4deg)}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .scroll{display:flex;gap:6px;padding:10px max(5vw,16px);max-width:1240px;margin:0 auto}
+nav a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:99px;background:var(--card);white-space:nowrap}
+nav a:hover,nav a:focus-visible{background:var(--blue);color:#fff;outline:none}
+h2{font-size:32px;line-height:1.05;margin:56px 0 6px;letter-spacing:-.01em}
+h2+p.sub{color:var(--mut);margin:0 0 24px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start;padding:28px 0;border-top:1px solid var(--line)}
+.item h3{font-size:20px;margin:0 0 4px}
+.item .d{color:var(--mut);margin:0 0 14px;max-width:60ch}
+.codebox{position:relative;background:var(--codebg);border-radius:14px}
+.codebox pre{margin:0;padding:18px 18px 18px;color:#e6e6e6;font:13.5px/1.6 'JetBrains Mono',ui-monospace,monospace}
+.copy{position:absolute;top:8px;right:8px;font:500 13px Inter,sans-serif;background:#ffffff1a;color:#fff;border:0;border-radius:8px;padding:0 12px;height:32px;cursor:pointer}
+.copy:hover,.copy:focus-visible{background:var(--blue);outline:none}
+.k{color:#ff7ab2}.t{color:#6bdfff}.s{color:#fc6a5d}.n{color:#d9c97c}.c{color:#7f8c98}
+/* phone */
+.phone{width:240px;height:440px;border-radius:38px;background:#111;padding:9px;box-shadow:0 18px 40px #0003,inset 0 0 0 2px #333;flex:none}
+.scr{position:relative;width:100%;height:100%;border-radius:30px;background:var(--ph);overflow:hidden;color:#000;font:13px/1.35 Inter,-apple-system,sans-serif;display:flex;flex-direction:column}
+.scr.white{background:#fff}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-weight:600;font-size:12px;flex:none}
+.isl{width:70px;height:20px;background:#000;border-radius:12px}
+.bd{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.ctr{align-items:center;justify-content:center}
+.home{height:4px;width:90px;background:#000;border-radius:3px;margin:6px auto 8px;flex:none}
+.cap{font-size:11px;color:var(--mut);text-align:center;margin-top:8px}
+.ttl{font-size:24px;font-weight:700;padding:2px 2px 0}
+.grp{background:var(--cell);border-radius:10px;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;min-height:38px;gap:8px}
+.row+.row{border-top:.5px solid var(--sep);margin-left:12px;padding-left:0}
+.gh{font-size:11px;color:var(--gray);text-transform:uppercase;padding:0 12px;margin-bottom:-6px}
+.btn{background:var(--blue);color:#fff;border-radius:9px;padding:8px 14px;font-weight:600;text-align:center}
+.btn.bord{background:#007aff22;color:var(--blue)}
+.btn.plain{background:none;color:var(--blue);font-weight:400}
+.btn.cap2{border-radius:99px}
+.btn.red{background:none;color:#ff3b30}
+.tog{width:40px;height:24px;border-radius:12px;background:#34c759;position:relative;flex:none}
+.tog::after{content:"";position:absolute;right:2px;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004}
+.tog.off{background:#e9e9eb}.tog.off::after{right:auto;left:2px}
+.sl{height:4px;background:#d1d1d6;border-radius:2px;position:relative;margin:10px 0}
+.sl i{position:absolute;left:0;top:0;height:4px;background:var(--blue);border-radius:2px}
+.sl b{position:absolute;top:-10px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0005;margin-left:-12px}
+.tf{background:#fff;border:1px solid #d1d1d6;border-radius:7px;padding:7px 9px;color:#000}
+.ph{color:#c4c4c6}
+.seg{display:flex;background:#e3e3e8;border-radius:8px;padding:2px}
+.seg span{flex:1;text-align:center;padding:4px 0;font-size:12px;font-weight:500;border-radius:6px}
+.seg .on{background:#fff;box-shadow:0 1px 3px #0002}
+.step{display:flex;background:#e9e9eb;border-radius:8px;font-size:16px}
+.step span{padding:2px 12px}.step span+span{border-left:1px solid #c6c6c8}
+.pv{height:4px;background:#e5e5ea;border-radius:2px;overflow:hidden}.pv i{display:block;height:100%;background:var(--blue)}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid #d1d1d6;border-top-color:#8e8e93;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.chev{color:#c4c4c6;font-size:16px}
+.tag{background:#e9e9eb;border-radius:6px;padding:3px 8px;font-size:12px}
+.blue{color:var(--blue)}.gray{color:var(--gray)}
+.tabbar{display:flex;justify-content:space-around;border-top:.5px solid var(--sep);background:#f9f9f9;padding:6px 0 0;flex:none;font-size:10px}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--gray)}.tabbar .on{color:var(--blue)}
+.dim{position:absolute;inset:0;background:#0006;display:flex;align-items:center;justify-content:center}
+.alert{width:180px;background:#f2f2f7ee;border-radius:13px;text-align:center;overflow:hidden}
+.alert .a1{padding:14px 12px 10px}.alert .a2{display:flex;border-top:.5px solid var(--sep)}
+.alert .a2 span{flex:1;padding:9px;color:var(--blue)}.alert .a2 span+span{border-left:.5px solid var(--sep);font-weight:600}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:46px;background:#fff;border-radius:12px 12px 0 0;padding:8px 14px}
+.grab{width:34px;height:5px;background:#c7c7cc;border-radius:3px;margin:0 auto 10px}
+.gridc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gridc div{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.menu{position:absolute;background:#f2f2f7f5;border-radius:12px;box-shadow:0 10px 30px #0003;width:170px;overflow:hidden}
+.menu div{padding:9px 12px;display:flex;justify-content:space-between}.menu div+div{border-top:.5px solid var(--sep)}
+.box{border-radius:8px;padding:8px 10px;color:#fff;font-weight:600;text-align:center}
+svg.i{width:1em;height:1em;vertical-align:-.15em;fill:currentColor}
+footer{color:var(--mut);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:860px){.hero .wrap{grid-template-columns:minmax(0,1fr)}.strip .phone:nth-child(3){display:none}}
+@media(max-width:700px){.item{grid-template-columns:minmax(0,1fr)}.item .pw{order:-1;justify-self:center}.strip .phone:nth-child(2){display:none}.strip .phone{transform:none}h2{font-size:28px}}
+@media(max-width:600px){table{font-size:13px}}
+
+.hero .wrap{display:block}.hero p{max-width:44em}
+.homel{display:inline-block;color:#fff;opacity:.9;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:900px;margin:0 auto 18px}
+.bar button{font:500 14px Inter,sans-serif;min-height:40px;padding:0 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.bar button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.bar .sp{flex:1}
+.list{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.qc{background:var(--card);border-radius:16px;padding:18px 20px;border:1px solid var(--line)}
+.qh{display:flex;gap:14px;align-items:flex-start}
+.qn{flex:none;width:38px;height:38px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.qt{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:2px}
+.qq{font-size:18px;font-weight:600;line-height:1.35}
+.qq code,.ans code{font:14px 'JetBrains Mono',monospace;background:var(--bg);padding:1px 6px;border-radius:5px}
+.tgl{margin:12px 0 0 52px;font:600 14px Inter,sans-serif;color:var(--blue);background:none;border:0;cursor:pointer;padding:6px 0;min-height:36px}
+.ans{margin:6px 0 0 52px;display:none}.qc.open .ans{display:block}
+.ans p{margin:0 0 12px;font-size:16px}
+.ans .codebox{margin:0 0 12px}
+.keys{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.keys b{font-size:12px;color:var(--mut);margin-right:4px}
+.keys span{background:#34c75922;color:light-dark(#1a7f37,#5fd47f);border-radius:99px;padding:4px 10px;font-weight:500}
+.ans pre code{background:none;padding:0;border-radius:0;font:inherit}
+.golink{display:block;max-width:900px;margin:34px auto 0;background:var(--blue);color:#fff;text-decoration:none;border-radius:16px;padding:22px 24px}
+.golink b{font-size:20px;display:block}.golink span{opacity:.9}
+@media(max-width:600px){.tgl,.ans{margin-left:0}.qq{font-size:17px}}
+</style></head><body>
+<header class="band hero"><div class="wrap"><a class="homel" href="index.html">← Saare guides</a>
+<h1>SwiftUI interview questions</h1>
+<p>25 sawal. Har sawal ka jawab apne shabdon mein do, aur ho sake to chhota code example bhi.</p></div></header>
+<main class="band">
+<div class="bar"><div id="topics" style="display:contents"></div></div>
+<div class="list" id="list"></div>
+</main>
+<script src="qa-data.js"></script>
+<script>{const topics=['Sab',...new Set(QA.map(x=>x.t))];let cur='Sab';
+const bar=document.getElementById('topics');
+const drawBar=()=>bar.innerHTML=topics.map(t=>`<button class="${t===cur?'on':''}" data-t="${t}">${t}</button>`).join('');
+bar.addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;cur=b.dataset.t;drawBar();draw()});
+const list=document.getElementById('list');
+const draw=()=>{list.innerHTML=QA.map((x,i)=>({x,i})).filter(o=>cur==='Sab'||o.x.t===cur).map(({x,i})=>`<article class="qc"><div class="qh"><div class="qn">${i+1}</div><div><div class="qt">${x.t}</div><div class="qq">${x.q}</div></div></div></article>`).join('')};
+drawBar();draw();
+}</script></body></html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SwiftUI Components Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly, clear reference — seekhne wale ke liye
+   IDEA: Xcode ka canvas — left code, right iPhone preview
+   PICTURE: har component ka live-jaisa iPhone screen
+   COLOUR and TYPE: iOS system blue on white / grouped gray, Inter + JetBrains Mono
+   LAYOUT: hero with phone strip, sticky category links, code|phone rows */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b0b0d);--ink:light-dark(#111113,#f2f2f7);--mut:light-dark(#5b5b63,#a1a1aa);--blue:#007aff;--card:light-dark(#f5f5f7,#17171a);--line:light-dark(#e3e3e8,#2a2a30);--codebg:#1d1f23;
+/* phone (always light iOS look) */--ph:#f2f2f7;--cell:#fff;--sep:#c6c6c8;--gray:#8e8e93}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+pre,.scroll{overflow-x:auto}.scroll a{flex:none}code{overflow-wrap:anywhere}html{scroll-padding-top:72px;scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+.hero{background:var(--blue);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:center}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0 0 14px;font-weight:800;text-wrap:balance;letter-spacing:-.02em}
+.hero p{font-size:17px;max-width:34em;margin:0;opacity:.92}
+.hero small{display:block;margin-top:16px;font-size:13px;opacity:.8}
+.strip{display:flex;gap:14px;justify-content:center}
+.strip .phone{transform:rotate(-4deg)}.strip .phone:nth-child(2){transform:translateY(-14px)}.strip .phone:nth-child(3){transform:rotate(4deg)}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .scroll{display:flex;gap:6px;padding:10px max(5vw,16px);max-width:1240px;margin:0 auto}
+nav a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:99px;background:var(--card);white-space:nowrap}
+nav a:hover,nav a:focus-visible{background:var(--blue);color:#fff;outline:none}
+h2{font-size:32px;line-height:1.05;margin:56px 0 6px;letter-spacing:-.01em}
+h2+p.sub{color:var(--mut);margin:0 0 24px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start;padding:28px 0;border-top:1px solid var(--line)}
+.item h3{font-size:20px;margin:0 0 4px}
+.item .d{color:var(--mut);margin:0 0 14px;max-width:60ch}
+.codebox{position:relative;background:var(--codebg);border-radius:14px}
+.codebox pre{margin:0;padding:18px 18px 18px;color:#e6e6e6;font:13.5px/1.6 'JetBrains Mono',ui-monospace,monospace}
+.copy{position:absolute;top:8px;right:8px;font:500 13px Inter,sans-serif;background:#ffffff1a;color:#fff;border:0;border-radius:8px;padding:0 12px;height:32px;cursor:pointer}
+.copy:hover,.copy:focus-visible{background:var(--blue);outline:none}
+.k{color:#ff7ab2}.t{color:#6bdfff}.s{color:#fc6a5d}.n{color:#d9c97c}.c{color:#7f8c98}
+/* phone */
+.phone{width:240px;height:440px;border-radius:38px;background:#111;padding:9px;box-shadow:0 18px 40px #0003,inset 0 0 0 2px #333;flex:none}
+.scr{position:relative;width:100%;height:100%;border-radius:30px;background:var(--ph);overflow:hidden;color:#000;font:13px/1.35 Inter,-apple-system,sans-serif;display:flex;flex-direction:column}
+.scr.white{background:#fff}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-weight:600;font-size:12px;flex:none}
+.isl{width:70px;height:20px;background:#000;border-radius:12px}
+.bd{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.ctr{align-items:center;justify-content:center}
+.home{height:4px;width:90px;background:#000;border-radius:3px;margin:6px auto 8px;flex:none}
+.cap{font-size:11px;color:var(--mut);text-align:center;margin-top:8px}
+.ttl{font-size:24px;font-weight:700;padding:2px 2px 0}
+.grp{background:var(--cell);border-radius:10px;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;min-height:38px;gap:8px}
+.row+.row{border-top:.5px solid var(--sep);margin-left:12px;padding-left:0}
+.gh{font-size:11px;color:var(--gray);text-transform:uppercase;padding:0 12px;margin-bottom:-6px}
+.btn{background:var(--blue);color:#fff;border-radius:9px;padding:8px 14px;font-weight:600;text-align:center}
+.btn.bord{background:#007aff22;color:var(--blue)}
+.btn.plain{background:none;color:var(--blue);font-weight:400}
+.btn.cap2{border-radius:99px}
+.btn.red{background:none;color:#ff3b30}
+.tog{width:40px;height:24px;border-radius:12px;background:#34c759;position:relative;flex:none}
+.tog::after{content:"";position:absolute;right:2px;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004}
+.tog.off{background:#e9e9eb}.tog.off::after{right:auto;left:2px}
+.sl{height:4px;background:#d1d1d6;border-radius:2px;position:relative;margin:10px 0}
+.sl i{position:absolute;left:0;top:0;height:4px;background:var(--blue);border-radius:2px}
+.sl b{position:absolute;top:-10px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0005;margin-left:-12px}
+.tf{background:#fff;border:1px solid #d1d1d6;border-radius:7px;padding:7px 9px;color:#000}
+.ph{color:#c4c4c6}
+.seg{display:flex;background:#e3e3e8;border-radius:8px;padding:2px}
+.seg span{flex:1;text-align:center;padding:4px 0;font-size:12px;font-weight:500;border-radius:6px}
+.seg .on{background:#fff;box-shadow:0 1px 3px #0002}
+.step{display:flex;background:#e9e9eb;border-radius:8px;font-size:16px}
+.step span{padding:2px 12px}.step span+span{border-left:1px solid #c6c6c8}
+.pv{height:4px;background:#e5e5ea;border-radius:2px;overflow:hidden}.pv i{display:block;height:100%;background:var(--blue)}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid #d1d1d6;border-top-color:#8e8e93;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.chev{color:#c4c4c6;font-size:16px}
+.tag{background:#e9e9eb;border-radius:6px;padding:3px 8px;font-size:12px}
+.blue{color:var(--blue)}.gray{color:var(--gray)}
+.tabbar{display:flex;justify-content:space-around;border-top:.5px solid var(--sep);background:#f9f9f9;padding:6px 0 0;flex:none;font-size:10px}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--gray)}.tabbar .on{color:var(--blue)}
+.dim{position:absolute;inset:0;background:#0006;display:flex;align-items:center;justify-content:center}
+.alert{width:180px;background:#f2f2f7ee;border-radius:13px;text-align:center;overflow:hidden}
+.alert .a1{padding:14px 12px 10px}.alert .a2{display:flex;border-top:.5px solid var(--sep)}
+.alert .a2 span{flex:1;padding:9px;color:var(--blue)}.alert .a2 span+span{border-left:.5px solid var(--sep);font-weight:600}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:46px;background:#fff;border-radius:12px 12px 0 0;padding:8px 14px}
+.grab{width:34px;height:5px;background:#c7c7cc;border-radius:3px;margin:0 auto 10px}
+.gridc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gridc div{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.menu{position:absolute;background:#f2f2f7f5;border-radius:12px;box-shadow:0 10px 30px #0003;width:170px;overflow:hidden}
+.menu div{padding:9px 12px;display:flex;justify-content:space-between}.menu div+div{border-top:.5px solid var(--sep)}
+.box{border-radius:8px;padding:8px 10px;color:#fff;font-weight:600;text-align:center}
+svg.i{width:1em;height:1em;vertical-align:-.15em;fill:currentColor}
+footer{color:var(--mut);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:860px){.hero .wrap{grid-template-columns:minmax(0,1fr)}.strip .phone:nth-child(3){display:none}}
+@media(max-width:700px){.item{grid-template-columns:minmax(0,1fr)}.item .pw{order:-1;justify-self:center}.strip .phone:nth-child(2){display:none}.strip .phone{transform:none}h2{font-size:28px}}
+@media(max-width:600px){table{font-size:13px}}
+</style>
+</head>
+<body>
+<header class="band hero"><div class="wrap">
+  <div>
+    <a href="index.html" style="display:inline-block;color:#fff;opacity:.9;text-decoration:none;font-weight:600;font-size:14px;margin-bottom:14px">← Saare guides</a>
+    <h1>SwiftUI ke saare components — code aur woh kaisa dikhta hai</h1>
+    <p>Har component ka chhota example code, uska matlab simple Hindi mein, aur bagal mein iPhone par woh kaisa dikhega. Code copy karo, Xcode mein paste karo, chalao.</p>
+    <small>Preview iPhone (iOS 17+) ke default look jaisa banaya gaya hai — exact pixels Xcode ke canvas se thode alag ho sakte hain.</small>
+  </div>
+  <div class="strip" id="heroStrip"></div>
+</div></header>
+<nav><div class="scroll" id="nav"></div></nav>
+<main class="band" style="padding-top:8px"><div class="wrap" id="main"></div></main>
+<footer class="band"><div class="wrap">Tip: Xcode mein naya SwiftUI file banao, <code>struct ContentView: View { var body: some View { ... } }</code> ke andar example ka code daalo, aur <code>#Preview { ContentView() }</code> se canvas pe dekho.</div></footer>
+
+<script>
+{
+const S={
+star:'<svg class="i" viewBox="0 0 24 24"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z"/></svg>',
+heart:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.7-8 11-8 11z"/></svg>',
+house:'<svg class="i" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>',
+gear:'<svg class="i" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-2.2-.6-.6-1.5 1.1-2-1.7-1.7-2 1.1-1.5-.6L13.5 3h-3l-.6 2.2-1.5.6-2-1.1L4.7 6.4l1.1 2-.6 1.5L3 10.5v3l2.2.6.6 1.5-1.1 2 1.7 1.7 2-1.1 1.5.6.6 2.2h3l.6-2.2 1.5-.6 2 1.1 1.7-1.7-1.1-2 .6-1.5L21 13.5z"/></svg>',
+person:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>',
+bell:'<svg class="i" viewBox="0 0 24 24"><path d="M12 22a2.5 2.5 0 002.5-2.5h-5A2.5 2.5 0 0012 22zm7-6V11a7 7 0 00-5.5-6.8V3h-3v1.2A7 7 0 005 11v5l-2 2v1h18v-1z"/></svg>',
+plus:'<svg class="i" viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>',
+search:'<svg class="i" viewBox="0 0 24 24"><path d="M10 3a7 7 0 015.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1110 3zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>',
+tray:'<svg class="i" viewBox="0 0 24 24"><path d="M3 13l3-9h12l3 9v7H3zm2.2 0H9a3 3 0 006 0h3.8l-2.2-7H7.4z"/></svg>'
+};
+const ph=(body,o={})=>`<div class="phone"><div class="scr ${o.white?'white':''}"><div class="sb"><span>9:41</span><span class="isl"></span><span>100%</span></div>${o.raw?body:`<div class="bd ${o.ctr?'ctr':''}">${body}</div>`}${o.tab||''}<div class="home"></div>${o.over||''}</div></div>`;
+const hl=src=>src.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+ .replace(/("(?:[^"\\]|\\.)*")|(\/\/[^\n]*)|\b(struct|var|let|some|import|func|private|static|in|true|false|@State|@Binding|for|if|else)\b|(@State|@Environment)|\b([A-Z][A-Za-z]+)\b|\b(\d+(?:\.\d+)?)\b/g,(m,s,c,k,a,t,n)=>s?`<span class="s">${s}</span>`:c?`<span class="c">${c}</span>`:k?`<span class="k">${k}</span>`:a?`<span class="k">${a}</span>`:t?`<span class="t">${t}</span>`:`<span class="n">${n}</span>`)
+ .replace(/<span class="k">@<\/span>/g,'@');
+
+const D=[
+{cat:'Text aur Image',id:'text',items:[
+{n:'Text',d:'Screen par likha hua text dikhane ke liye. Font, color, weight sab modifiers se badlo.',
+c:`Text("Namaste SwiftUI!")
+    .font(.largeTitle)
+    .fontWeight(.bold)
+    .foregroundStyle(.blue)
+
+Text("Yeh ek chhota subtitle hai")
+    .font(.subheadline)
+    .foregroundStyle(.secondary)`,
+p:ph(`<div style="font-size:26px;font-weight:700;color:#007aff">Namaste SwiftUI!</div><div class="gray">Yeh ek chhota subtitle hai</div>`,{ctr:1,white:1})},
+{n:'Image (SF Symbols)',d:'Apple ke 5000+ free icons (SF Symbols) ya Assets folder ki apni photo dikhane ke liye.',
+c:`HStack(spacing: 20) {
+    Image(systemName: "star.fill")
+        .foregroundStyle(.yellow)
+    Image(systemName: "heart.fill")
+        .foregroundStyle(.red)
+    Image(systemName: "bell.fill")
+        .foregroundStyle(.orange)
+}
+.font(.system(size: 40))
+
+// Apni photo: Image("myPhoto").resizable().scaledToFit()`,
+p:ph(`<div style="font-size:40px;display:flex;gap:18px"><span style="color:#ffcc00">${S.star}</span><span style="color:#ff3b30">${S.heart}</span><span style="color:#ff9500">${S.bell}</span></div>`,{ctr:1,white:1})},
+{n:'Label',d:'Icon aur text ek saath — menus, lists aur buttons mein bahut use hota hai.',
+c:`VStack(alignment: .leading, spacing: 14) {
+    Label("Home", systemImage: "house.fill")
+    Label("Settings", systemImage: "gearshape.fill")
+    Label("Profile", systemImage: "person.fill")
+}
+.font(.title3)`,
+p:ph(`<div style="font-size:18px;display:flex;flex-direction:column;gap:14px"><div><span class="blue">${S.house}</span>&nbsp; Home</div><div><span class="blue">${S.gear}</span>&nbsp; Settings</div><div><span class="blue">${S.person}</span>&nbsp; Profile</div></div>`,{ctr:1,white:1})},
+{n:'Link',d:'Tap karne par Safari mein website khul jaati hai.',
+c:`Link("Apple Developer kholo",
+     destination: URL(string: "https://developer.apple.com")!)`,
+p:ph(`<div class="blue" style="font-size:16px">Apple Developer kholo</div>`,{ctr:1,white:1})}
+]},
+{cat:'Buttons',id:'buttons',items:[
+{n:'Button + buttonStyle',d:'Tap par action chalane ke liye. iOS 15+ mein ready-made styles: .borderedProminent, .bordered, .plain, aur role .destructive.',
+c:`VStack(spacing: 16) {
+    Button("Save karo") { print("Saved") }
+        .buttonStyle(.borderedProminent)
+
+    Button("Edit") { }
+        .buttonStyle(.bordered)
+
+    Button("Cancel") { }   // default plain
+
+    Button("Delete", role: .destructive) { }
+
+    Button("Continue") { }
+        .buttonStyle(.borderedProminent)
+        .buttonBorderShape(.capsule)
+}`,
+p:ph(`<div class="btn">Save karo</div><div class="btn bord">Edit</div><div class="btn plain">Cancel</div><div class="btn red">Delete</div><div class="btn cap2">Continue</div>`,{ctr:1,white:1})},
+{n:'Button with icon (custom)',d:'Label ke saath button, aur apna khud ka design — full width blue button.',
+c:`Button {
+    print("Added")
+} label: {
+    Label("Naya item add karo", systemImage: "plus")
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(.blue)
+        .foregroundStyle(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+}
+.padding()`,
+p:ph(`<div class="btn" style="width:100%;padding:13px;border-radius:12px">${S.plus} Naya item add karo</div>`,{ctr:1,white:1})},
+{n:'Menu',d:'Button dabane par options ki list (dropdown) khulti hai.',
+c:`Menu("Options") {
+    Button("Copy") { }
+    Button("Share") { }
+    Button("Delete", role: .destructive) { }
+}`,
+p:ph(`<div class="blue" style="align-self:flex-start;margin:20px 0 0 20px">Options</div>`,{white:1,over:`<div class="menu" style="left:30px;top:84px"><div>Copy</div><div>Share</div><div style="color:#ff3b30">Delete</div></div>`})}
+]},
+{cat:'Input controls',id:'inputs',items:[
+{n:'TextField aur SecureField',d:'User se text lene ke liye. SecureField password ke liye — likha hua chhup jaata hai. @State variable mein value save hoti hai.',
+c:`struct LoginView: View {
+    @State private var name = ""
+    @State private var password = ""
+
+    var body: some View {
+        VStack(spacing: 12) {
+            TextField("Apna naam likho", text: $name)
+                .textFieldStyle(.roundedBorder)
+            SecureField("Password", text: $password)
+                .textFieldStyle(.roundedBorder)
+        }
+        .padding()
+    }
+}`,
+p:ph(`<div class="tf ph">Apna naam likho</div><div class="tf">••••••</div>`,{ctr:1,white:1})},
+{n:'TextEditor',d:'Multi-line lamba text likhne ke liye (notes, description).',
+c:`@State private var notes = "Yahan apne notes likho..."
+
+TextEditor(text: $notes)
+    .frame(height: 150)
+    .padding(8)
+    .overlay(RoundedRectangle(cornerRadius: 8)
+        .stroke(.gray.opacity(0.4)))
+    .padding()`,
+p:ph(`<div class="tf" style="height:150px">Yahan apne notes likho...</div>`,{ctr:1,white:1})},
+{n:'Toggle',d:'On/Off switch. Value Bool @State mein rehti hai.',
+c:`@State private var wifi = true
+@State private var darkMode = false
+
+Form {
+    Toggle("Wi-Fi", isOn: $wifi)
+    Toggle("Dark Mode", isOn: $darkMode)
+}`,
+p:ph(`<div class="ttl"></div><div class="grp"><div class="row">Wi-Fi<span class="tog"></span></div><div class="row">Dark Mode<span class="tog off"></span></div></div>`)},
+{n:'Slider',d:'Range mein se value chunne ke liye — volume, brightness jaisa.',
+c:`@State private var volume = 60.0
+
+VStack {
+    Slider(value: $volume, in: 0...100)
+    Text("Volume: \\(Int(volume))")
+}
+.padding()`,
+p:ph(`<div style="width:100%"><div class="sl"><i style="width:60%"></i><b style="left:60%"></b></div></div><div>Volume: 60</div>`,{ctr:1,white:1})},
+{n:'Stepper',d:'+ / − button se number badhana-ghatana.',
+c:`@State private var qty = 1
+
+Stepper("Quantity: \\(qty)", value: $qty, in: 1...10)
+    .padding()`,
+p:ph(`<div class="row" style="width:100%;padding:0">Quantity: 1<span class="step"><span>−</span><span>+</span></span></div>`,{ctr:1,white:1})},
+{n:'Picker (segmented / menu)',d:'Kai options mein se ek chunna. Style badal ke segmented tabs, menu dropdown ya wheel bana sakte ho.',
+c:`@State private var size = "M"
+let sizes = ["S", "M", "L", "XL"]
+
+VStack(spacing: 20) {
+    Picker("Size", selection: $size) {
+        ForEach(sizes, id: \\.self) { Text($0) }
+    }
+    .pickerStyle(.segmented)
+
+    Picker("Size", selection: $size) {
+        ForEach(sizes, id: \\.self) { Text($0) }
+    }
+    .pickerStyle(.menu)
+}
+.padding()`,
+p:ph(`<div class="seg" style="width:100%"><span>S</span><span class="on">M</span><span>L</span><span>XL</span></div><div class="blue">M ⌃⌄</div>`,{ctr:1,white:1})},
+{n:'Picker (wheel)',d:'Purane iOS jaisa ghoomne wala wheel picker.',
+c:`@State private var city = "Delhi"
+
+Picker("City", selection: $city) {
+    ForEach(["Mumbai", "Delhi", "Pune", "Jaipur"],
+            id: \\.self) { Text($0) }
+}
+.pickerStyle(.wheel)`,
+p:ph(`<div style="text-align:center;width:100%;line-height:2.1"><div style="color:#c4c4c6">Mumbai</div><div style="background:#e9e9eb;border-radius:8px;font-size:17px">Delhi</div><div style="color:#aaa">Pune</div><div style="color:#c4c4c6">Jaipur</div></div>`,{ctr:1,white:1})},
+{n:'DatePicker',d:'Date aur/ya time chunne ke liye. .graphical style se pura calendar dikhta hai.',
+c:`@State private var date = Date()
+
+Form {
+    DatePicker("Meeting", selection: $date)
+    DatePicker("Sirf date", selection: $date,
+               displayedComponents: .date)
+}`,
+p:ph(`<div class="grp"><div class="row">Meeting<span><span class="tag">26 Nov 2026</span> <span class="tag">10:04</span></span></div><div class="row">Sirf date<span class="tag">26 Nov 2026</span></div></div>`)},
+{n:'ColorPicker',d:'User ko color chunne deta hai.',
+c:`@State private var color = Color.blue
+
+Form {
+    ColorPicker("Theme color", selection: $color)
+}`,
+p:ph(`<div class="grp"><div class="row">Theme color<span style="width:24px;height:24px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);padding:3px"><span style="display:block;width:100%;height:100%;border-radius:50%;background:#007aff;border:2px solid #fff"></span></span></div></div>`)}
+]},
+{cat:'Progress',id:'progress',items:[
+{n:'ProgressView',d:'Loading spinner, ya kitna kaam ho gaya uski bar.',
+c:`VStack(spacing: 30) {
+    ProgressView()              // spinner
+
+    ProgressView("Loading...")
+
+    ProgressView(value: 0.65)   // 65% bar
+        .padding(.horizontal)
+}`,
+p:ph(`<div class="spin"></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="spin"></div><span class="gray">Loading...</span></div><div class="pv" style="width:100%"><i style="width:65%"></i></div>`,{ctr:1,white:1})},
+{n:'Gauge',d:'Meter jaisa value dikhane ke liye (iOS 16+).',
+c:`Gauge(value: 0.7) {
+    Text("Battery")
+} currentValueLabel: {
+    Text("70%")
+}
+.gaugeStyle(.accessoryCircular)
+.tint(.green)`,
+p:ph(`<div style="width:64px;height:64px;border-radius:50%;background:conic-gradient(from 225deg,#34c759 0 189deg,#e5e5ea 189deg 270deg,transparent 270deg);display:flex;align-items:center;justify-content:center"><div style="width:54px;height:54px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:600">70%</div></div>`,{ctr:1,white:1})}
+]},
+{cat:'Layout',id:'layout',items:[
+{n:'VStack, HStack, ZStack',d:'VStack = upar-neeche, HStack = left-right, ZStack = ek ke upar ek (layers).',
+c:`VStack(spacing: 12) {
+    HStack {
+        Text("A").box(.red)
+        Text("B").box(.green)
+        Text("C").box(.blue)
+    }
+    ZStack {
+        Circle().fill(.orange).frame(width: 100)
+        Text("ZStack").bold()
+    }
+}
+
+extension View {
+    func box(_ c: Color) -> some View {
+        padding().background(c).foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+}`,
+p:ph(`<div style="display:flex;gap:8px"><div class="box" style="background:#ff3b30">A</div><div class="box" style="background:#34c759">B</div><div class="box" style="background:#007aff">C</div></div><div style="width:100px;height:100px;border-radius:50%;background:#ff9500;display:flex;align-items:center;justify-content:center;font-weight:700">ZStack</div>`,{ctr:1,white:1})},
+{n:'Spacer aur Divider',d:'Spacer khali jagah bhar ke cheezein door dhakelta hai; Divider patli line.',
+c:`VStack {
+    HStack {
+        Text("Left")
+        Spacer()
+        Text("Right")
+    }
+    Divider()
+    Text("Divider ke neeche")
+}
+.padding()`,
+p:ph(`<div style="width:100%;display:flex;justify-content:space-between"><span>Left</span><span>Right</span></div><div style="width:100%;height:1px;background:#c6c6c8"></div><div>Divider ke neeche</div>`,{ctr:1,white:1})},
+{n:'ScrollView',d:'Content screen se bada ho to scroll karne ke liye. .horizontal se side-scroll.',
+c:`ScrollView(.horizontal, showsIndicators: false) {
+    HStack {
+        ForEach(1...10, id: \\.self) { i in
+            Text("Card \\(i)")
+                .frame(width: 100, height: 120)
+                .background(.blue.gradient)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    .padding()
+}`,
+p:ph(`<div style="display:flex;gap:8px;width:300px">${[1,2,3].map(i=>`<div class="box" style="background:linear-gradient(#3a95ff,#007aff);width:100px;height:120px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:12px">Card ${i}</div>`).join('')}</div>`,{ctr:1,white:1})},
+{n:'LazyVGrid',d:'Grid (photos gallery jaisa) banane ke liye.',
+c:`let cols = Array(repeating: GridItem(.flexible()), count: 3)
+
+ScrollView {
+    LazyVGrid(columns: cols, spacing: 8) {
+        ForEach(1...12, id: \\.self) { i in
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(hue: Double(i)/12, saturation: 0.6,
+                            brightness: 0.9))
+                .aspectRatio(1, contentMode: .fit)
+                .overlay(Text("\\(i)").bold().foregroundStyle(.white))
+        }
+    }
+    .padding()
+}`,
+p:ph(`<div class="gridc">${Array.from({length:12},(_,i)=>`<div style="background:hsl(${(i+1)*30},60%,62%)">${i+1}</div>`).join('')}</div>`,{white:1})},
+{n:'Shapes',d:'Circle, Rectangle, RoundedRectangle, Capsule — design ke building blocks.',
+c:`HStack(spacing: 14) {
+    Circle().fill(.red)
+    Rectangle().fill(.green)
+    RoundedRectangle(cornerRadius: 12).fill(.blue)
+    Capsule().fill(.orange)
+        .frame(width: 30)
+}
+.frame(height: 50)
+.padding()`,
+p:ph(`<div style="display:flex;gap:12px;align-items:center"><div style="width:44px;height:44px;border-radius:50%;background:#ff3b30"></div><div style="width:44px;height:44px;background:#34c759"></div><div style="width:44px;height:44px;border-radius:10px;background:#007aff"></div><div style="width:24px;height:50px;border-radius:12px;background:#ff9500"></div></div>`,{ctr:1,white:1})}
+]},
+{cat:'Lists aur Forms',id:'lists',items:[
+{n:'List',d:'Rows ki list — contacts, settings, chats. ForEach se array ke items dikhao.',
+c:`let fruits = ["Aam", "Kela", "Seb", "Angoor"]
+
+List(fruits, id: \\.self) { fruit in
+    Text(fruit)
+}`,
+p:ph(`<div class="grp">${['Aam','Kela','Seb','Angoor'].map(f=>`<div class="row">${f}</div>`).join('')}</div>`)},
+{n:'List with Sections',d:'Groups mein baati hui list, header ke saath.',
+c:`List {
+    Section("Fruits") {
+        Text("Aam")
+        Text("Kela")
+    }
+    Section("Sabziyan") {
+        Text("Aloo")
+        Text("Tamatar")
+    }
+}`,
+p:ph(`<div class="gh">Fruits</div><div class="grp"><div class="row">Aam</div><div class="row">Kela</div></div><div class="gh">Sabziyan</div><div class="grp"><div class="row">Aloo</div><div class="row">Tamatar</div></div>`)},
+{n:'Form',d:'Settings jaisi screen — TextField, Toggle, Picker sab ek saath sundar tarike se.',
+c:`@State private var name = ""
+@State private var notify = true
+@State private var lang = "Hindi"
+
+Form {
+    Section("Profile") {
+        TextField("Naam", text: $name)
+    }
+    Section("Preferences") {
+        Toggle("Notifications", isOn: $notify)
+        Picker("Language", selection: $lang) {
+            Text("Hindi").tag("Hindi")
+            Text("English").tag("English")
+        }
+    }
+}`,
+p:ph(`<div class="gh">Profile</div><div class="grp"><div class="row ph">Naam</div></div><div class="gh">Preferences</div><div class="grp"><div class="row">Notifications<span class="tog"></span></div><div class="row">Language<span class="gray">Hindi ⌃⌄</span></div></div>`)},
+{n:'DisclosureGroup',d:'Tap karne par khulne-band hone wala section.',
+c:`DisclosureGroup("Aur details dekho") {
+    Text("Yeh chhupa hua content hai")
+    Text("Tap karne par dikhta hai")
+}
+.padding()`,
+p:ph(`<div style="width:100%;display:flex;justify-content:space-between"><span>Aur details dekho</span><span class="blue">⌄</span></div><div style="width:100%;padding-left:8px">Yeh chhupa hua content hai</div><div style="width:100%;padding-left:8px">Tap karne par dikhta hai</div>`,{white:1})},
+{n:'ContentUnavailableView',d:'Khali screen ke liye ready-made design (iOS 17+).',
+c:`ContentUnavailableView("Koi message nahi",
+    systemImage: "tray",
+    description: Text("Naye messages yahan dikhenge"))`,
+p:ph(`<div style="font-size:44px;color:#8e8e93">${S.tray}</div><div style="font-weight:700;font-size:17px">Koi message nahi</div><div class="gray" style="text-align:center">Naye messages yahan dikhenge</div>`,{ctr:1,white:1})}
+]},
+{cat:'Navigation',id:'nav',items:[
+{n:'NavigationStack + NavigationLink',d:'Ek screen se doosri screen pe jaana, upar bada title aur back button ke saath.',
+c:`NavigationStack {
+    List(1...5, id: \\.self) { i in
+        NavigationLink("Item \\(i)") {
+            Text("Detail screen \\(i)")
+        }
+    }
+    .navigationTitle("Mera App")
+}`,
+p:ph(`<div class="ttl">Mera App</div><div class="grp">${[1,2,3,4,5].map(i=>`<div class="row">Item ${i}<span class="chev">›</span></div>`).join('')}</div>`)},
+{n:'Toolbar',d:'Navigation bar mein upar buttons lagana.',
+c:`NavigationStack {
+    Text("Home screen")
+        .navigationTitle("Notes")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Add", systemImage: "plus") { }
+            }
+        }
+}`,
+p:ph(`<div style="text-align:right;font-size:18px" class="blue">${S.plus}</div><div class="ttl" style="margin-top:-12px">Notes</div><div style="flex:1;display:flex;align-items:center;justify-content:center">Home screen</div>`,{white:1})},
+{n:'.searchable',d:'List ke upar search bar.',
+c:`@State private var query = ""
+
+NavigationStack {
+    List(["Aam", "Kela", "Seb"], id: \\.self) { Text($0) }
+        .navigationTitle("Fruits")
+        .searchable(text: $query, prompt: "Search karo")
+}`,
+p:ph(`<div class="ttl">Fruits</div><div style="background:#e3e3e8;border-radius:9px;padding:7px 9px" class="gray">${S.search} Search karo</div><div class="grp"><div class="row">Aam</div><div class="row">Kela</div><div class="row">Seb</div></div>`)},
+{n:'TabView',d:'Neeche tab bar — Home, Search, Profile jaise alag sections.',
+c:`TabView {
+    Text("Home").tabItem {
+        Label("Home", systemImage: "house.fill")
+    }
+    Text("Search").tabItem {
+        Label("Search", systemImage: "magnifyingglass")
+    }
+    Text("Profile").tabItem {
+        Label("Profile", systemImage: "person.fill")
+    }
+}`,
+p:ph(`<div style="flex:1;display:flex;align-items:center;justify-content:center">Home</div>`,{white:1,tab:`<div class="tabbar"><div class="on"><span style="font-size:20px">${S.house}</span>Home</div><div><span style="font-size:20px">${S.search}</span>Search</div><div><span style="font-size:20px">${S.person}</span>Profile</div></div>`})}
+]},
+{cat:'Popups',id:'popups',items:[
+{n:'Alert',d:'Zaroori sawaal ya warning ka popup.',
+c:`@State private var show = false
+
+Button("Delete karo") { show = true }
+    .alert("Pakka delete karna hai?", isPresented: $show) {
+        Button("Cancel", role: .cancel) { }
+        Button("Delete", role: .destructive) { }
+    } message: {
+        Text("Yeh wapas nahi aayega.")
+    }`,
+p:ph(`<div class="blue">Delete karo</div>`,{ctr:1,white:1,over:`<div class="dim"><div class="alert"><div class="a1"><b>Pakka delete karna hai?</b><div style="font-size:12px;margin-top:3px">Yeh wapas nahi aayega.</div></div><div class="a2"><span style="font-weight:600">Cancel</span><span style="color:#ff3b30;font-weight:400">Delete</span></div></div></div>`})},
+{n:'Sheet',d:'Neeche se upar aane wali nayi screen (modal).',
+c:`@State private var show = false
+
+Button("Sheet kholo") { show = true }
+    .sheet(isPresented: $show) {
+        Text("Main ek sheet hoon!")
+            .presentationDetents([.medium, .large])
+    }`,
+p:ph(`<div class="blue">Sheet kholo</div>`,{ctr:1,white:1,over:`<div class="dim" style="background:#0005"></div><div class="sheet" style="top:auto;height:55%"><div class="grab"></div><div style="text-align:center;margin-top:40px">Main ek sheet hoon!</div></div>`})},
+{n:'confirmationDialog',d:'Neeche se options ki list (action sheet).',
+c:`@State private var show = false
+
+Button("Photo") { show = true }
+    .confirmationDialog("Photo", isPresented: $show) {
+        Button("Camera") { }
+        Button("Gallery") { }
+        Button("Cancel", role: .cancel) { }
+    }`,
+p:ph(`<div class="blue">Photo</div>`,{ctr:1,white:1,over:`<div class="dim" style="align-items:flex-end;padding:0 8px 22px;flex-direction:column;justify-content:flex-end;gap:6px"><div class="alert" style="width:100%"><div class="a1" style="padding:8px;font-size:12px" class="gray">Photo</div><div style="border-top:.5px solid #c6c6c8;padding:10px;color:#007aff">Camera</div><div style="border-top:.5px solid #c6c6c8;padding:10px;color:#007aff">Gallery</div></div><div class="alert" style="width:100%;background:#fff;padding:10px;color:#007aff;font-weight:600">Cancel</div></div>`})}
+]}
+];
+
+document.getElementById('heroStrip').innerHTML=D[1].items[0].p+D[6].items[0].p+D[5].items[2].p;
+document.getElementById('nav').innerHTML=D.map(g=>`<a href="#${g.id}">${g.cat}</a>`).join('');
+let k=0;const codes=[];
+document.getElementById('main').innerHTML=D.map(g=>`<h2 id="${g.id}">${g.cat}</h2><p class="sub">${g.items.length} components</p>`+g.items.map(it=>{codes.push(it.c);return `<article class="item"><div><h3>${it.n}</h3><p class="d">${it.d}</p><div class="codebox"><button class="copy" data-i="${k++}">Copy</button><pre><code>${hl(it.c)}</code></pre></div></div><div class="pw">${it.p}<div class="cap">iPhone par aisa dikhega</div></div></article>`}).join('')).join('');
+document.getElementById('main').addEventListener('click',async e=>{const b=e.target.closest('.copy');if(!b)return;try{await navigator.clipboard.writeText(codes[b.dataset.i]);b.textContent='Copied!'}catch(_){b.textContent='Select karke copy karo'}setTimeout(()=>b.textContent='Copy',1600)});
+}
+</script>
+</body>
+</html>
